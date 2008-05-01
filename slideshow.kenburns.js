@@ -28,15 +28,15 @@ Slideshow.KenBurns = new Class({
 				this.options[p].map(function(n){ return (n.toInt() || 0).limit(0, 100); });
 		}, this);
 		$$(this.a, this.b).set({
-			'morph': { duration: (this.options.delay + this.options.duration * 2), link: 'cancel', transition: Fx.Transitions.linear },
-			'tween': { duration: this.options.duration, link: 'cancel' }
+			'morph': { 'duration': (this.options.delay + this.options.duration * 2), 'link': 'cancel', 'transition': $arguments(0) },
+			'tween': { 'duration': this.options.duration, 'link': 'cancel', 'property': 'opacity' }
 		});
 	},
 
 	// does the slideshow effect
 
 	show: function(fast){
-		this.image.set('styles', { bottom: 'auto', left: 'auto', right: 'auto', top: 'auto' });
+		this.image.set('styles', { 'bottom': 'auto', 'left': 'auto', 'right': 'auto', 'top': 'auto' });
 		var props = ['top left', 'top right', 'bottom left', 'bottom right'][this.counter % 4].split(' ');
 		props.each(function(prop){ this.image.setStyle(prop, 0); }, this);
 		dh = this.height / this.preloader.height;
@@ -57,14 +57,12 @@ Slideshow.KenBurns = new Class({
 		}, this);
 		if (fast){
 			this._center(this.image);
-			this.image.get('tween').cancel();
 			this.image.get('morph').cancel();
-			this.image.fade('show');
+			this.image.get('tween').cancel().set(1);
 		} 
 		else{
-			this.image.set('styles', { opacity: 0, visibility: 'visible' });
-			this.image.fade('in');
 			this.image.morph(values);
+			this.image.get('tween').set(0).start(1);
 		}
 	}
 });

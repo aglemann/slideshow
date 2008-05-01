@@ -22,9 +22,8 @@ Slideshow.Flash = new Class({
 		options.overlap = true;			
 		this.parent(el, data, options);
 		if ($type(this.options.color) == 'string') this.options.color = [this.options.color];
-		$$(this.a, this.b).set('tween', { duration: this.options.duration, link: 'cancel' });
+		$$(this.a, this.b).set('tween', { 'duration': this.options.duration, 'link': 'cancel' });
 	},
-
 
 	// does the slideshow effect
 
