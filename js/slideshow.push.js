@@ -1,12 +1,15 @@
 /*
 Script: Slideshow.Push.js
-	Slideshow.Push - A javascript class for Mootools to stream and animate the presentation of images on your website.
+	Slideshow.Push - Push extension for Slideshow.
 
 License:
 	MIT-style license.
 
 Copyright:
 	Copyright (c) 2008 [Aeron Glemann](http://www.electricprism.com/aeron/).
+	
+Dependencies:
+	Fx.Elements.
 */
 
 Slideshow.Push = new Class({

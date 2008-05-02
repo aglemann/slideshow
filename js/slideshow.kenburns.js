@@ -1,6 +1,6 @@
 /*
 Script: Slideshow.KenBurns.js
-	Slideshow.KenBurns - A javascript class for Mootools to stream and animate the presentation of images on your website.
+	Slideshow.KenBurns - KenBurns extension for Slideshow, includes zooming and panning effects.
 
 License:
 	MIT-style license.

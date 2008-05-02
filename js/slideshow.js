@@ -7,6 +7,9 @@ License:
 
 Copyright:
 	Copyright (c) 2008 [Aeron Glemann](http://www.electricprism.com/aeron/).
+	
+Dependencies:
+	Assets, Fx.Morph, Fx.Tween, Selectors, Element.Dimensions.
 */
 
 Slideshow = new Class({
@@ -24,7 +27,7 @@ Slideshow = new Class({
 		href: '',
 		hu: '/',
 		linked: false,
-		loader: true,
+		loader: { 'animate': ['../css/loader-#.png', 12] },
 		loop: true,
 		match: /\?slide=(\d+)$/,
 		overlap: true,
@@ -319,12 +322,6 @@ Slideshow = new Class({
 		}
 	},
 	
-	// force un-pause
-
-	play: function(){ 
-		this.pause(0); 
-	},
-
 	// go to the previous image in the show
 
 	prev: function(first){
@@ -389,7 +386,7 @@ Slideshow = new Class({
 		this.slideshow.retrieve('loader', loader).fireEvent('hide');
 	},
 	
-	// builds the caption element, adds interactivity
+	// builds the optional caption element, adds interactivity
 
 	captions: function(){
  		if (this.options.captions === true) 
@@ -418,7 +415,7 @@ Slideshow = new Class({
 		this.slideshow.retrieve('captions', captions).fireEvent('update');
 	},
 
-	// builds the controller element, adds interactivity
+	// builds the optional controller element, adds interactivity
 
 	controller: function(){
  		if (this.options.controller === true)
@@ -461,7 +458,7 @@ Slideshow = new Class({
 							this.slideshow.retrieve((e.shift) ? 'first' : 'prev').fireEvent('mouseenter'); break;
 						case 'right':
 							this.slideshow.retrieve((e.shift) ? 'last' : 'next').fireEvent('mouseenter'); break;
-						default: // space
+						default:
 							this.slideshow.retrieve('pause').fireEvent('mouseenter');
 					}
 				}
@@ -476,7 +473,7 @@ Slideshow = new Class({
 							this.slideshow.retrieve((e.shift) ? 'first' : 'prev').fireEvent('mouseleave'); break;
 						case 'right': 
 							this.slideshow.retrieve((e.shift) ? 'last' : 'next').fireEvent('mouseleave'); break;
-						default: // space 
+						default:
 							this.slideshow.retrieve('pause').fireEvent('mouseleave');
 					}
 				}
@@ -492,7 +489,7 @@ Slideshow = new Class({
 		this.slideshow.retrieve('controller', controller).fireEvent('hide');
 	},
 
-	// builds the thumbnails element, adds interactivity
+	// builds the optional thumbnails element, adds interactivity
 
 	thumbnails: function(){
  		if (this.options.thumbnails === true) 

@@ -1,0 +1,221 @@
+/*
+Stylesheet: Slideshow.css
+	Slideshow.css - CSS for Slideshow.
+
+License:
+	MIT-style license.
+
+Copyright:
+	Copyright (c) 2008 [Aeron Glemann](http://www.electricprism.com/aeron/).
+*/
+
+/*
+These styles are set by the Slideshow script.
+You can override any of them with the !important keyword but the slideshow probably will not work as intended.
+*/
+
+.slideshow {
+	display: block;
+	position: relative;
+}
+.slideshow-images {
+	display: block;
+	/* height: height_of_slideshow_or_default_image */
+	overflow: hidden;
+	position: relative;
+	/* width: width_of_slideshow_or_default_image */
+}		
+.slideshow-images img {
+	display: block;
+	position: absolute;
+	z-index: 1;
+}		
+.slideshow-thumbnails {
+	overflow: hidden;
+}
+
+/*
+The images div is where the slides are shown.
+Customize these classes to effect the slideshow transitions: fading, wiping, etc.
+*/
+
+.slideshow-images-visible { 
+	left: 0; 
+	opacity: 1; 
+	top: 0; 
+}	
+.slideshow-images-next { 
+	left: 0; 
+	opacity: 0; 
+	top: 375px; 
+}
+.slideshow-images-prev { 
+	left: 0; 
+	opacity: 0; 
+	top: -375px; 
+}
+
+/*
+These are examples of user-defined styles.
+Customize these classes to your usage of Slideshow.
+*/
+
+.slideshow {
+	height: 375px;
+	margin: 0 auto;
+	width: 500px;
+}
+.slideshow a img {
+	border: 0;
+}
+
+.slideshow-captions {
+	background: #000;
+	bottom: 0;
+	color: #FFF;
+	font: normal 12px/22px Arial, sans-serif;
+	left: 0;
+	overflow: hidden;
+	position: absolute;
+	text-indent: 10px;
+	width: 100%;
+	z-index: 10000;
+}
+.slideshow-captions-hidden {
+	height: 0;
+	opacity: 0;
+}
+.slideshow-captions-visible {
+	height: 22px;
+	opacity: .7;
+}
+
+.slideshow-controller {
+	background: url(controller.png) no-repeat;
+	height: 42px;
+	left: 50%;
+	margin: -21px 0 0 -119px;
+	overflow: hidden;
+	position: absolute;
+	top: 50%;
+	width: 238px;
+	z-index: 10000;
+}
+.slideshow-controller * {
+	margin: 0;
+	padding: 0;
+}
+.slideshow-controller-hidden { 
+	opacity: 0;
+}
+.slideshow-controller-visible {
+	opacity: 1;
+}
+.slideshow-controller a {
+	cursor: pointer;
+	display: block;
+	height: 18px;
+	overflow: hidden;
+	position: absolute;
+	top: 12px;
+}
+.slideshow-controller a.active {
+	background-position: 0 18px;
+}
+.slideshow-controller li {
+	list-style: none;
+}
+.slideshow-controller li.first a {
+	background-image: url(controller-first.gif);
+	left: 33px;
+	width: 19px;
+}
+.slideshow-controller li.last a {
+	background-image: url(controller-last.gif);
+	left: 186px;
+	width: 19px;
+}
+.slideshow-controller li.next a {
+	background-image: url(controller-next.gif);
+	left: 145px;
+	width: 28px;
+}
+.slideshow-controller li.pause a {
+	background-image: url(controller-pause.gif);
+	left: 109px;
+	width: 20px;
+}
+.slideshow-controller li.play a {
+	background-image: url(controller-play.gif);
+}
+.slideshow-controller li.prev a {
+	background-image: url(controller-prev.gif);
+	left: 65px;
+	width: 28px;
+}
+
+.slideshow-images img { 
+	float: left;
+}	
+
+.slideshow-loader {
+	height: 28px;
+	right: 0;
+	position: absolute;
+	width: 28px;
+	z-index: 10001;
+}
+.slideshow-loader-hidden {
+	opacity: 0;
+}
+.slideshow-loader-visible {
+	opacity: 1;
+}
+
+.slideshow-thumbnails {
+	bottom: -65px;
+	height: 65px;
+	left: 0;
+	position: absolute;
+	width: 100%;
+}
+.slideshow-thumbnails * {
+	margin: 0;
+	padding: 0;
+}
+.slideshow-thumbnails ul {
+	height: 65px;
+	left: 0;
+	position: absolute;
+	top: 0;
+	width: 10000px;
+}
+.slideshow-thumbnails li {
+	float: left;
+	list-style: none;
+	margin: 5px 5px 5px 0;
+	position: relative;
+}
+.slideshow-thumbnails a {
+	display: block;
+	padding: 5px;
+	position: relative; 
+}
+/*
+Use the !important keyword to override any on-going javascript FX without affecting performance.
+*/
+.slideshow-thumbnails a:hover {
+	background-color: #FF9 !important;
+	opacity: 1 !important;
+}
+.slideshow-thumbnails img {
+	display: block;
+}
+.slideshow-thumbnails-active {
+	background-color: #9FF;
+	opacity: 1;
+}
+.slideshow-thumbnails-inactive {
+	background-color: #FFF;
+	opacity: .5;
+}

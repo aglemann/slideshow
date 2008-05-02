@@ -1,6 +1,6 @@
 /*
 Script: Slideshow.Flash.js
-	Slideshow.Flash - A javascript class for Mootools to stream and animate the presentation of images on your website.
+	Slideshow.Flash - Flash extension for Slideshow.
 
 License:
 	MIT-style license.
