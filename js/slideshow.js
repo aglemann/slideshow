@@ -27,7 +27,7 @@ Slideshow = new Class({
 		href: '',
 		hu: '/',
 		linked: false,
-		loader: { 'animate': ['../css/loader-#.png', 12] },
+		loader: {'animate': ['../css/loader-#.png', 12]},
 		loop: true,
 		match: /\?slide=(\d+)$/,
 		overlap: true,
@@ -38,7 +38,7 @@ Slideshow = new Class({
 		resize: true,
 		slide: 0,
 		thumbnails: false,
-		transition: function(p){ return -(Math.cos(Math.PI * p) - 1) / 2; },
+		transition: function(p){return -(Math.cos(Math.PI * p) - 1) / 2;},
 		width: false
 	},
 	
@@ -49,8 +49,8 @@ Slideshow = new Class({
 		this.slideshow = $(el);
 		if (!this.slideshow) 
 			return;
-		this.slideshow.set('styles', { 'display': 'block', 'position': 'relative' });
-		var keys = [ 'slideshow', 'first', 'prev', 'play', 'pause', 'next', 'last', 'controller', 'thumbnails', 'captions', 'images', 'hidden', 'visible', 'inactive', 'active', 'loader' ];
+		this.slideshow.set('styles', {'display': 'block', 'position': 'relative'});
+		var keys = ['slideshow', 'first', 'prev', 'play', 'pause', 'next', 'last', 'images', 'captions', 'controller', 'thumbnails', 'hidden', 'visible', 'inactive', 'active', 'loader'];
 		var values = keys.map(function(key, i){
 			return this.options.classes[i] || key;
 		}, this);
@@ -68,11 +68,11 @@ Slideshow = new Class({
 			this.options.hu += '/';
 		if (!data){
 			data = {};
-			this.slideshow.getElements(this.classes.get('images') + ' img').each(function(img){ 
+			this.slideshow.getElements(this.classes.get('images') + ' img').each(function(img){
 				var el = img.getParent();
 				var href = el.get('href') || '';
 				var src = img.get('src').split('/').getLast();
-				data[src] = { caption: img.get('alt'), href: href };
+				data[src] = {caption: img.get('alt'), href: href};
 			});
 		}
 		this.load(data);
@@ -88,7 +88,7 @@ Slideshow = new Class({
 		this.a = this.image = (el) ? el : new Element('img');
 		this.a.set({
 			'src': this.options.hu + this.data.images[this.slide],
-			'styles': { 'display': 'block', 'position': 'absolute', 'zIndex': 1 }
+			'styles': {'display': 'block', 'position': 'absolute', 'zIndex': 1}
 		});
 		var image = this.a.getSize();
 		this.width = (this.options.width || image.x);
@@ -96,12 +96,13 @@ Slideshow = new Class({
 		if (this.options.width || this.options.height)		
 			this._resize(this.a, image.x, image.y);
 		var el = this.slideshow.getElement(this.classes.get('images'));
-		var images = (el) ? el.empty() : new Element('div', { 'class': this.classes.get('images').substr(1) }).inject(this.slideshow);
-		images.set({ 'styles': { 'display': 'block', 'height': this.height, 'overflow': 'hidden', 'position': 'relative', 'width': this.width }});
+		var images = (el) ? el.empty() : new Element('div', {'class': this.classes.get('images').substr(1)}).inject(this.slideshow);
+		images.set({'styles': {'display': 'block', 'height': this.height, 'overflow': 'hidden', 'position': 'relative', 'width': this.width}});
 		this.slideshow.store('images', images);
 		anchor.clone().grab(this.a).inject(images);
 		this.b = this.a.clone().setStyle('visibility', 'hidden');
 		anchor.clone().grab(this.b).inject(images);
+		this.events = $H({'keydown': [], 'keyup': [], 'mousemove': []});
 		if (this.options.loader)
  			this.loader();
 		if (this.options.captions)
@@ -109,8 +110,8 @@ Slideshow = new Class({
 		if (this.options.controller)
 			this.controller();
 		if (this.options.thumbnails)
-			this.thumbnails();		
-		document.addEvent('keyup', function(e){
+			this.thumbnails();
+		var keyup = function(e){
 			switch(e.key){
 				case 'left': 
 					this.prev(e.shift); break;
@@ -119,7 +120,9 @@ Slideshow = new Class({
 				case 'space': 
 					this.pause(); break;
 			}
-		}.bind(this));
+		}.bind(this);		
+		this.events.keyup.push(keyup);
+		document.addEvent('keyup', keyup);
 		if (this.options.paused)
 			this.pause();
 		if (this.data.images.length > 1)
@@ -129,12 +132,12 @@ Slideshow = new Class({
 	// loads data
 
 	load: function(data){
-		this.showed = { 'array': [], 'i': 0 };
-		if ($type(data) == 'array'){ 
+		this.showed = {'array': [], 'i': 0};
+		if ($type(data) == 'array'){
 			this.options.captions = false;			
 			data = new Array(data.length).associate(data); 
 		}
-		this.data = { 'images': [], 'captions': [], 'hrefs': [], 'thumbnails': [] };
+		this.data = {'images': [], 'captions': [], 'hrefs': [], 'thumbnails': []};
 		for (image in data){
 			var obj = data[image] || {};
 			var caption = (obj.caption) ? obj.caption.trim() : '';
@@ -172,7 +175,7 @@ Slideshow = new Class({
 			this.image = (this.counter % 2) ? this.b : this.a;
 			this.image.set({
 				'src': this.preloader.get('src'),
-				'styles': { 'height': 'auto', 'visibility': 'hidden', 'width': 'auto', 'zIndex': this.counter }
+				'styles': {'height': 'auto', 'visibility': 'hidden', 'width': 'auto', 'zIndex': this.counter}
 			});	
 			this._resize(this.image, this.preloader.width, this.preloader.height);
 			var anchor = this.image.getParent();
@@ -199,11 +202,11 @@ Slideshow = new Class({
 	// does the slideshow effect
 
 	show: function(fast){
-		this._center(this.image);
 		if (!this.image.retrieve('morph')){
-			var options = (this.options.overlap) ? { 'duration': this.options.duration, 'link': 'cancel' } : { 'duration': this.options.duration / 2, 'link': 'chain' };
-			$$(this.a, this.b).set('morph', $merge(options, { 'transition': this.options.transition }));
+			var options = (this.options.overlap) ? {'duration': this.options.duration, 'link': 'cancel'} : {'duration': this.options.duration / 2, 'link': 'chain'};
+			$$(this.a, this.b).set('morph', $merge(options, {'transition': this.options.transition}));
 		}
+		this._center(this.image);
 		var hidden = this.classes.get('images', ((this.direction == 'left') ? 'next' : 'prev'));
 		var visible = this.classes.get('images', 'visible');
 		if (fast)
@@ -259,7 +262,7 @@ Slideshow = new Class({
 
 	// go to the first image in the show
 
-	first: function(){ 
+	first: function(){
 		this.prev(true); 
 	},
 
@@ -279,7 +282,7 @@ Slideshow = new Class({
 
 	// go to the last image in the show
 
-	last: function(){ 
+	last: function(){
 		this.next(true); 
 	},
 
@@ -345,18 +348,18 @@ Slideshow = new Class({
 	loader: function(){
  		if (this.options.loader === true) 
  			this.options.loader = {};
-		var loader = new Element('div', { 
+		var loader = new Element('div', {
 			'class': this.classes.get('loader').substr(1),				
-			'morph': $merge(this.options.loader, { 'link': 'cancel' })
+			'morph': $merge(this.options.loader, {'link': 'cancel'})
 		}).store('hidden', false).store('i', 1).inject(this.slideshow.retrieve('images'));
 		if (this.options.loader.animate){
 			for (var i = 0; i < this.options.loader.animate[1]; i++)
-				new Asset.image(this.options.loader.animate[0].replace(/#/, i));
+				img = new Asset.image(this.options.loader.animate[0].replace(/#/, i));
 			if (Browser.trident4 && this.options.loader.animate[0].contains('png'))
 				loader.setStyle('backgroundImage', 'none');					
 		}
 		loader.set('events', {
-			'animate': function(){   
+			'animate': function(){  
 				var loader = this.slideshow.retrieve('loader');				
 				var i = (loader.retrieve('i').toInt() + 1) % this.options.loader.animate[1];
 				loader.store('i', i);
@@ -366,7 +369,7 @@ Slideshow = new Class({
 				else 
 					loader.setStyle('backgroundImage', 'url(' + img + ')');
 			}.bind(this),
-			'hide': function(){   
+			'hide': function(){  
 				var loader = this.slideshow.retrieve('loader');
 				if (!loader.retrieve('hidden')){
 					loader.store('hidden', true).morph(this.classes.get('loader', 'hidden'));
@@ -374,12 +377,12 @@ Slideshow = new Class({
 						$clear(loader.retrieve('timer'));					
 				}
 			}.bind(this),
-			'show': function(){   
+			'show': function(){  
 				var loader = this.slideshow.retrieve('loader');
 				if (loader.retrieve('hidden')){
 					loader.store('hidden', false).morph(this.classes.get('loader', 'visible'));
 					if (this.options.loader.animate)
-						loader.store('timer', function(){ this.fireEvent('animate'); }.periodical(50, loader));
+						loader.store('timer', function(){this.fireEvent('animate');}.periodical(50, loader));
 				}
 			}.bind(this)
 		});
@@ -392,7 +395,7 @@ Slideshow = new Class({
  		if (this.options.captions === true) 
  			this.options.captions = {};
 		var el = this.slideshow.getElement(this.classes.get('captions'));
-		var captions = (el) ? el.empty() : new Element('div', { 'class': this.classes.get('captions').substr(1) }).inject(this.slideshow);
+		var captions = (el) ? el.empty() : new Element('div', {'class': this.classes.get('captions').substr(1)}).inject(this.slideshow);
 		captions.set({
 			'events': {
 				'update': function(fast){	
@@ -410,7 +413,7 @@ Slideshow = new Class({
 					}
 				}.bind(this)
 			},
-			'morph': $merge(this.options.captions, { 'link': 'chain' })
+			'morph': $merge(this.options.captions, {'link': 'chain'})
 		});
 		this.slideshow.retrieve('captions', captions).fireEvent('update');
 	},
@@ -421,71 +424,73 @@ Slideshow = new Class({
  		if (this.options.controller === true)
  			this.options.controller = {};
 		var el = this.slideshow.getElement(this.classes.get('controller'));
-		var controller = (el) ? el.empty() : new Element('div', { 'class': this.classes.get('controller').substr(1) }).inject(this.slideshow);
+		var controller = (el) ? el.empty() : new Element('div', {'class': this.classes.get('controller').substr(1)}).inject(this.slideshow);
 		var ul = new Element('ul').inject(controller);
-		$H({ 'first': '⇧←', 'prev': '←', 'pause': 'space', 'next': '→', 'last': '⇧→' }).each(function(accesskey, action){
-			var li = new Element('li', { 'class': this.classes[action] }).inject(ul);
+		$H({'first': '⇧←', 'prev': '←', 'pause': 'space', 'next': '→', 'last': '⇧→'}).each(function(accesskey, action){
+			var li = new Element('li', {'class': this.classes[action]}).inject(ul);
 			var a = this.slideshow.retrieve(action, new Element('a', {
 				'title': ((action == 'pause') ? this.classes.play.capitalize() + ' / ' : '') + this.classes[action].capitalize() + ' [' + accesskey + ']'				
 			}).inject(li));
-			a.set('events', { 
-				'click': function(action){ this[action](); }.pass(action, this),
-				'mouseenter': function(active){ this.addClass(active); }.pass(this.classes.active, a),
-				'mouseleave': function(active){ this.removeClass(active); }.pass(this.classes.active, a)
+			a.set('events', {
+				'click': function(action){this[action]();}.pass(action, this),
+				'mouseenter': function(active){this.addClass(active);}.pass(this.classes.active, a),
+				'mouseleave': function(active){this.removeClass(active);}.pass(this.classes.active, a)
 			});		
 		}, this);
 		controller.set({
 			'events': {
-				'hide': function(hidden){   
+				'hide': function(hidden){  
 					if (!this.retrieve('hidden'))
 						this.store('hidden', true).morph(hidden);
 				}.pass(this.classes.get('controller', 'hidden'), controller),
-				'show': function(visible){   
+				'show': function(visible){  
 					if (this.retrieve('hidden'))
 						this.store('hidden', false).morph(visible);
 				}.pass(this.classes.get('controller', 'visible'), controller)
 			},
-			'morph': $merge(this.options.controller, { 'link': 'cancel' })
+			'morph': $merge(this.options.controller, {'link': 'cancel'})
 		}).store('hidden', false);
-		document.addEvents({
-			'keydown': function(e){
-				if (e.key.test(/left|right|space/)){
-					var controller = this.slideshow.retrieve('controller');
-					if (controller.retrieve('hidden'))
-						controller.get('morph').set(this.classes.get('controller', 'visible')); 			
-					switch(e.key){
-						case 'left': 
-							this.slideshow.retrieve((e.shift) ? 'first' : 'prev').fireEvent('mouseenter'); break;
-						case 'right':
-							this.slideshow.retrieve((e.shift) ? 'last' : 'next').fireEvent('mouseenter'); break;
-						default:
-							this.slideshow.retrieve('pause').fireEvent('mouseenter');
-					}
+		var keydown = function(e){
+			if (e.key.test(/left|right|space/)){
+				var controller = this.slideshow.retrieve('controller');
+				if (controller.retrieve('hidden'))
+					controller.get('morph').set(this.classes.get('controller', 'visible')); 			
+				switch(e.key){
+					case 'left': 
+						this.slideshow.retrieve((e.shift) ? 'first' : 'prev').fireEvent('mouseenter'); break;
+					case 'right':
+						this.slideshow.retrieve((e.shift) ? 'last' : 'next').fireEvent('mouseenter'); break;
+					default:
+						this.slideshow.retrieve('pause').fireEvent('mouseenter');
 				}
-			}.bind(this),
-			'keyup': function(e){
-				if (e.key.test(/left|right|space/)){
-					var controller = this.slideshow.retrieve('controller');
-					if (controller.retrieve('hidden'))
-						controller.store('hidden', false).fireEvent('hide'); 
-					switch(e.key){
-						case 'left': 
-							this.slideshow.retrieve((e.shift) ? 'first' : 'prev').fireEvent('mouseleave'); break;
-						case 'right': 
-							this.slideshow.retrieve((e.shift) ? 'last' : 'next').fireEvent('mouseleave'); break;
-						default:
-							this.slideshow.retrieve('pause').fireEvent('mouseleave');
-					}
+			}
+		}.bind(this);
+		this.events.keydown.push(keydown);
+		var keyup = function(e){
+			if (e.key.test(/left|right|space/)){
+				var controller = this.slideshow.retrieve('controller');
+				if (controller.retrieve('hidden'))
+					controller.store('hidden', false).fireEvent('hide'); 
+				switch(e.key){
+					case 'left': 
+						this.slideshow.retrieve((e.shift) ? 'first' : 'prev').fireEvent('mouseleave'); break;
+					case 'right': 
+						this.slideshow.retrieve((e.shift) ? 'last' : 'next').fireEvent('mouseleave'); break;
+					default:
+						this.slideshow.retrieve('pause').fireEvent('mouseleave');
 				}
-			}.bind(this),
-			'mousemove': function(e){
-				var images = this.slideshow.retrieve('images').getCoordinates();
-				if (e.page.x > images.left && e.page.x < images.right && e.page.y > images.top && e.page.y < images.bottom)
-					this.slideshow.retrieve('controller').fireEvent('show');
-				else
-					this.slideshow.retrieve('controller').fireEvent('hide');
-			}.bind(this)
-		});
+			}
+		}.bind(this);
+		this.events.keyup.push(keyup);
+		var mousemove = function(e){
+			var images = this.slideshow.retrieve('images').getCoordinates();
+			if (e.page.x > images.left && e.page.x < images.right && e.page.y > images.top && e.page.y < images.bottom)
+				this.slideshow.retrieve('controller').fireEvent('show');
+			else
+				this.slideshow.retrieve('controller').fireEvent('hide');
+		}.bind(this);
+		this.events.mousemove.push(mousemove);
+		document.addEvents({'keydown': keydown, 'keyup': keyup, 'mousemove': mousemove});
 		this.slideshow.retrieve('controller', controller).fireEvent('hide');
 	},
 
@@ -495,18 +500,18 @@ Slideshow = new Class({
  		if (this.options.thumbnails === true) 
  			this.options.thumbnails = {}; 
 		var el = this.slideshow.getElement(this.classes.get('thumbnails'));
-		var thumbnails = (el) ? el.empty() : new Element('div', { 'class': this.classes.get('thumbnails').substr(1) }).inject(this.slideshow);
+		var thumbnails = (el) ? el.empty() : new Element('div', {'class': this.classes.get('thumbnails').substr(1)}).inject(this.slideshow);
 		thumbnails.setStyle('overflow', 'hidden');
-		var ul = new Element('ul', { 'tween': { 'link': 'cancel' }}).inject(thumbnails);
+		var ul = new Element('ul', {'tween': {'link': 'cancel'}}).inject(thumbnails);
 		this.data.thumbnails.each(function(thumbnail, i){
 			var li = new Element('li').inject(ul);
 			var a = new Element('a', {
 				'events': {
-					'click': function(i){ 
+					'click': function(i){
 						this.go(i); 
 						return false; 
 					}.pass(i, this),
-					'loaded': function(){ 
+					'loaded': function(){
 						this.data.thumbnails.pop();
 						if (!this.data.thumbnails.length){
 							var div = thumbnails.getCoordinates();
@@ -521,11 +526,11 @@ Slideshow = new Class({
 					}.bind(this)
 				},
 				'href': this.options.hu + this.data.images[i],
-				'morph': $merge(this.options.thumbnails, { 'link': 'cancel' }),
+				'morph': $merge(this.options.thumbnails, {'link': 'cancel'}),
 				'title': this.data.captions[i]
 			}).inject(li);
-			var img = new Asset.image(this.options.hu + thumbnail, { 
-				'onload': function(){ this.fireEvent('loaded'); }.bind(a) 
+			var img = new Asset.image(this.options.hu + thumbnail, {
+				'onload': function(){this.fireEvent('loaded');}.bind(a) 
 			}).inject(a);
 		}, this);
 		thumbnails.set('events', {
@@ -534,7 +539,7 @@ Slideshow = new Class({
 				var ul = this.getElement('ul').getPosition();
 				var props = this.retrieve('props');
 				var axis = props[3], delta, pos = props[0], size = props[2];				
-				var tween = this.getElement('ul').get('tween', { 'property': pos});	
+				var tween = this.getElement('ul').get('tween', {'property': pos});	
 				if ($chk(n)){
 					var li = this.getElements('li')[n].getCoordinates();
 					var delta = div[pos] + (div[size] / 2) - (li[size] / 2) - li[pos]	
@@ -560,7 +565,7 @@ Slideshow = new Class({
 				var thumbnails = this.slideshow.retrieve('thumbnails');
 				thumbnails.getElements('a').each(function(a, i){	
 					if (i == this.slide){
-						if (!a.retrieve('active', false)){ 
+						if (!a.retrieve('active', false)){
 							a.store('active', true);
 							var active = this.classes.get('thumbnails', 'active');							
 							if (fast) a.get('morph').set(active);
@@ -582,13 +587,13 @@ Slideshow = new Class({
 		})
 		var div = thumbnails.getCoordinates();
 		thumbnails.store('props', (div.height > div.width) ? ['top', 'bottom', 'height', 'y'] : ['left', 'right', 'width', 'x']);
-		document.addEvent('mousemove', function(e){
+		var mousemove = function(e){
 			var div = this.getCoordinates();
 			if (e.page.x > div.left && e.page.x < div.right && e.page.y > div.top && e.page.y < div.bottom){
 				this.store('page', e.page);			
 				if (!this.retrieve('mouseover')){
 					this.store('mouseover', true);
-					this.store('timer', function(){ this.fireEvent('scroll'); }.periodical(50, this));
+					this.store('timer', function(){this.fireEvent('scroll');}.periodical(50, this));
 				}
 			}
 			else {
@@ -597,8 +602,26 @@ Slideshow = new Class({
 					$clear(this.retrieve('timer'));
 				}
 			}
-		}.bind(thumbnails));
+		}.bind(thumbnails);
+		this.events.mousemove.push(mousemove);
+		document.addEvent('mousemove', mousemove);
 		this.slideshow.retrieve('thumbnails', thumbnails).fireEvent('update', true);
+	},
+	
+	// destroy a slideshow instance, remove document events, clear callbacks, clear fx
+
+	destroy: function(p){
+		this.events.each(function(array, e){
+			array.each(function(fn){ document.removeEvent(e, fn); });
+		});
+		this.pause(1);
+		if (this.options.loader)
+			$clear(this.slideshow.retrieve('loader').retrieve('timer'));		
+		if (this.options.thumbnails)
+			$clear(this.slideshow.retrieve('thumbnails').retrieve('timer'));
+		Element.Storage[this.slideshow.uid] = {};
+		if (p)
+			$try(this.slideshow[p]());
 	},
 	
 	// helper function to center an image
@@ -606,7 +629,7 @@ Slideshow = new Class({
 	_center: function(img){
 		if (this.options.center){
 			var size = img.getSize();
-			img.set('styles', { left: (size.x - this.width) / -2, top: (size.y - this.height) / -2 });
+			img.set('styles', {left: (size.x - this.width) / -2, top: (size.y - this.height) / -2});
 		}
 	},
 
@@ -617,7 +640,7 @@ Slideshow = new Class({
 			var dh = this.height / h;
 			var dw = this.width / w;
 			var delta = (dw > dh) ? dw : dh;
-			img.set('styles', { height: Math.ceil(h * delta), width: Math.ceil(w * delta) });
+			img.set('styles', {height: Math.ceil(h * delta), width: Math.ceil(w * delta)});
 		}	
 	}
 });

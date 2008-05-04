@@ -13,31 +13,31 @@ Slideshow.Flash = new Class({
 	Extends: Slideshow,
 	
 	options: {
-		color: '#FFF'
+		color: ['#FFF']
 	},
 	
 	// constructor
 
 	initialize: function(el, data, options){
-		options.overlap = true;			
+		options.overlap = true;
+		if (options.color)
+			options.color = $splat(options.color);
 		this.parent(el, data, options);
-		if ($type(this.options.color) == 'string') this.options.color = [this.options.color];
-		$$(this.a, this.b).set('tween', { 'duration': this.options.duration, 'link': 'cancel' });
 	},
 
 	// does the slideshow effect
 
 	show: function(fast){
+		if (!this.image.retrieve('tween'))
+		  $$(this.a, this.b).set('tween', {'duration': this.options.duration, 'link': 'cancel', 'property': 'opacity'});
 		this._center(this.image);
-		if (fast){
-			this.image.get('tween').cancel();
-			this.image.fade('show');
-		} 
+		if (fast)
+			this.image.get('tween').cancel().set(1);
 		else {
 			this.slideshow.retrieve('images').setStyle('background', this.options.color[this.slide % this.options.color.length]);
 			var img = (this.counter % 2) ? this.a : this.b;
-			img.get('tween').cancel().set('opacity', 0);
-			this.image.fade('hide').fade('in');
+			img.get('tween').cancel().set(0);
+			this.image.get('tween').set(0).start(1);
 		}
 	}
 });

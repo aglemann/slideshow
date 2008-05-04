@@ -13,32 +13,39 @@ Slideshow.KenBurns = new Class({
 	Extends: Slideshow,
 	
 	options: {
-		pan: 100,
-		zoom: 50
+		pan: [100, 100],
+		zoom: [50, 50]
 	},
 	
 	// constructor
 
 	initialize: function(el, data, options){
 		options.overlap = true;
-		options.resize = true;				
-		this.parent(el, data, options);
+		options.resize = true;
 		['pan', 'zoom'].each(function(p){
-				if ($type(this.options[p] != 'array')) this.options[p] = [this.options[p], this.options[p]];
-				this.options[p].map(function(n){ return (n.toInt() || 0).limit(0, 100); });
-		}, this);
-		$$(this.a, this.b).set({
-			'morph': { 'duration': (this.options.delay + this.options.duration * 2), 'link': 'cancel', 'transition': $arguments(0) },
-			'tween': { 'duration': this.options.duration, 'link': 'cancel', 'property': 'opacity' }
-		});
+				if ($chk(this[p])){
+					if ($type(this[p] != 'array')) this[p] = [this[p], this[p]];
+					this[p].map(function(n){return (n.toInt() || 0).limit(0, 100);});					
+				}
+		}, options);
+		this.parent(el, data, options);
 	},
 
 	// does the slideshow effect
 
 	show: function(fast){
-		this.image.set('styles', { 'bottom': 'auto', 'left': 'auto', 'right': 'auto', 'top': 'auto' });
+		if (!this.image.retrieve('morph')){
+			['a', 'b'].each(function(image){
+				this[image].set('tween', {
+					'duration': this.options.duration, 'link': 'cancel', 'property': 'opacity'}
+				).get('morph', {
+					'duration': (this.options.delay + this.options.duration * 2), 'link': 'cancel', 'transition': $arguments(0)}
+				);
+			}, this);
+		}
+		this.image.set('styles', {'bottom': 'auto', 'left': 'auto', 'right': 'auto', 'top': 'auto'});
 		var props = ['top left', 'top right', 'bottom left', 'bottom right'][this.counter % 4].split(' ');
-		props.each(function(prop){ this.image.setStyle(prop, 0); }, this);
+		props.each(function(prop){this.image.setStyle(prop, 0);}, this);
 		dh = this.height / this.preloader.height;
 		dw = this.width / this.preloader.width;
 		delta = (dw > dh) ? dw : dh;
@@ -61,7 +68,7 @@ Slideshow.KenBurns = new Class({
 			this.image.get('tween').cancel().set(1);
 		} 
 		else{
-			this.image.morph(values);
+			this.image.get('morph').start(values);
 			this.image.get('tween').set(0).start(1);
 		}
 	}
