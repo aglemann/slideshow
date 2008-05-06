@@ -99,6 +99,8 @@ Slideshow = new Class({
 		var images = (el) ? el.empty() : new Element('div', {'class': this.classes.get('images').substr(1)}).inject(this.slideshow);
 		images.set({'styles': {'display': 'block', 'height': this.height, 'overflow': 'hidden', 'position': 'relative', 'width': this.width}});
 		this.slideshow.store('images', images);
+		if (this.data.hrefs[this.slide])
+			anchor.set('href', this.data.hrefs[this.slide]);		
 		anchor.clone().grab(this.a).inject(images);
 		this.b = this.a.clone().setStyle('visibility', 'hidden');
 		anchor.clone().grab(this.b).inject(images);
