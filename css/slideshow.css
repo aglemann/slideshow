@@ -162,6 +162,7 @@ Customize these classes to your usage of Slideshow.
 	height: 28px;
 	right: 0;
 	position: absolute;
+	top: 0;
 	width: 28px;
 	z-index: 10001;
 }
