@@ -47,12 +47,12 @@ Customize these classes to effect the slideshow transitions: fading, wiping, etc
 .slideshow-images-next { 
 	left: 0; 
 	opacity: 0; 
-	top: 375px; 
+	top: 360px; 
 }
 .slideshow-images-prev { 
 	left: 0; 
 	opacity: 0; 
-	top: -375px; 
+	top: -360px; 
 }
 
 /*
@@ -61,9 +61,9 @@ Customize these classes to your usage of Slideshow.
 */
 
 .slideshow {
-	height: 375px;
+	height: 360px;
 	margin: 0 auto;
-	width: 500px;
+	width: 480px;
 }
 .slideshow a img {
 	border: 0;
