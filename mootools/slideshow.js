@@ -167,41 +167,37 @@ Slideshow = new Class({
 	// preloads the next slide in the show, once loaded triggers the show, updates captions, thumbnails, etc
 
 	preload: function(fast){
-		if (this.preloader.complete){
-			if ($time() > this.delay && $time() > this.transition){
-				if (this.stopped){
-					if (this.options.captions)
-						this.slideshow.retrieve('captions').get('morph').cancel().start(this.classes.get('captions', 'hidden'));
-					this.pause(1);
-					return;				
-				}					
-				this.image = (this.counter % 2) ? this.b : this.a;
-				this.image.set({
-					'src': this.preloader.get('src'),
-					'styles': {'height': 'auto', 'visibility': 'hidden', 'width': 'auto', 'zIndex': this.counter}
-				});	
-				this._resize(this.image, this.preloader.width, this.preloader.height);
-				var anchor = this.image.getParent();
-				if (this.data.hrefs[this.slide])
-					anchor.set('href', this.data.hrefs[this.slide]);			
-				else
-					anchor.erase('href');	
-				if (this.options.loader)
-					this.slideshow.retrieve('loader').fireEvent('hide');
+		if (this.preloader.complete && $time() > this.delay && $time() > this.transition){
+			if (this.stopped){
 				if (this.options.captions)
-					this.slideshow.retrieve('captions').fireEvent('update', fast);				
-				if (this.options.thumbnails)
-					this.slideshow.retrieve('thumbnails').fireEvent('update', fast); 			
-				this.show(fast);
-				this.loaded();
-			}
+					this.slideshow.retrieve('captions').get('morph').cancel().start(this.classes.get('captions', 'hidden'));
+				this.pause(1);
+				return;				
+			}					
+			this.image = (this.counter % 2) ? this.b : this.a;
+			this.image.set({
+				'src': this.preloader.get('src'),
+				'styles': {'height': 'auto', 'visibility': 'hidden', 'width': 'auto', 'zIndex': this.counter}
+			});	
+			this._resize(this.image, this.preloader.width, this.preloader.height);
+			var anchor = this.image.getParent();
+			if (this.data.hrefs[this.slide])
+				anchor.set('href', this.data.hrefs[this.slide]);			
 			else
-				this.timer = (this.paused) ? null : this.preload.delay(100, this, fast); 			
-		}
-		else {
+				anchor.erase('href');	
 			if (this.options.loader)
+				this.slideshow.retrieve('loader').fireEvent('hide');
+			if (this.options.captions)
+				this.slideshow.retrieve('captions').fireEvent('update', fast);				
+			if (this.options.thumbnails)
+				this.slideshow.retrieve('thumbnails').fireEvent('update', fast); 			
+			this.show(fast);
+			this.loaded();
+		} 
+		else {
+			if ($time() > this.delay && this.options.loader)
 				this.slideshow.retrieve('loader').fireEvent('show');
-			this.timer = this.preload.delay(100, this, fast); 
+			this.timer = (this.paused && this.preloader.complete) ? null : this.preload.delay(100, this, fast); 
 		}
 	},
 
