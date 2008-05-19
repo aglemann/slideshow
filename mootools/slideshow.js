@@ -211,10 +211,13 @@ Slideshow = new Class({
 		this._center(this.image);
 		var hidden = this.classes.get('images', ((this.direction == 'left') ? 'next' : 'prev'));
 		var visible = this.classes.get('images', 'visible');
-		if (fast)
+		var img = (this.counter % 2) ? this.a : this.b;
+		if (fast){			
+			if (!this.options.overlap)
+				img.get('morph').cancel().set(hidden);
 			this.image.get('morph').cancel().set(visible); 			
+		} 
 		else {
-			var img = (this.counter % 2) ? this.a : this.b;
 			if (this.options.overlap){	
 				img.get('morph').set(visible);
 				this.image.get('morph').set(hidden).start(visible);
