@@ -2,6 +2,8 @@
 Script: slideshow_prototype.js
   Slideshow - A javascript class for Prototype-UI to stream and animate the presentation of images on your website.
 
+Actually based on Slideshow 2! rev46
+
 License:
   MIT-style license.
 
