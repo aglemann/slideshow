@@ -226,7 +226,7 @@ UI.Slideshow = Class.create(UI.Options, {
     } else {
       if (Date.now > this.delay && this.options.loader)
         this.slideshow.retrieve('loader').fire('show');
-      this.timer = (this.paused) ? null : this.preload.delay(.1, this, fast);
+      this.timer = (this.paused) ? null : this.preload.delay(0.1, this, fast);
     }
   },
   
@@ -332,7 +332,7 @@ UI.Slideshow = Class.create(UI.Options, {
    if (this.paused) {
      this.paused = this.stopped = false;
      this.delay = this.transition = 0;   
-     this.timer = this.preload.delay(.1, this);
+     this.timer = this.preload.delay(0.1, this);
      // [this.a, this.b].each(function(img){
    //     ['morph', 'tween'].each(function(p){
    //       if (this.retrieve(p)) this.get(p).resume();
