@@ -24,7 +24,7 @@ Slideshow.KenBurns = new Class({
 		options.resize = true;
 		['pan', 'zoom'].each(function(p){
 				if ($chk(this[p])){
-					if ($type(this[p] != 'array')) this[p] = [this[p], this[p]];
+					if ($type(this[p]) != 'array') this[p] = [this[p], this[p]];
 					this[p].map(function(n){return (n.toInt() || 0).limit(0, 100);});					
 				}
 		}, options);

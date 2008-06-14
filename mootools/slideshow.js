@@ -175,10 +175,10 @@ Slideshow = new Class({
 				return;				
 			}					
 			this.image = (this.counter % 2) ? this.b : this.a;
-			this.image.set({
-				'src': this.preloader.get('src'),
-				'styles': {'height': 'auto', 'visibility': 'hidden', 'width': 'auto', 'zIndex': this.counter}
-			});	
+			this.image.set('styles', {'height': 'auto', 'visibility': 'hidden', 'width': 'auto', 'zIndex': this.counter});
+			['src', 'height', 'width'].each(function(prop){
+				this.image.set(prop, this.preloader.get(prop));
+			}, this);
 			this._resize(this.image, this.preloader.width, this.preloader.height);
 			var anchor = this.image.getParent();
 			if (this.data.hrefs[this.slide])
@@ -213,8 +213,7 @@ Slideshow = new Class({
 		var visible = this.classes.get('images', 'visible');
 		var img = (this.counter % 2) ? this.a : this.b;
 		if (fast){			
-			if (!this.options.overlap)
-				img.get('morph').cancel().set(hidden);
+			img.get('morph').cancel().set(hidden);
 			this.image.get('morph').cancel().set(visible); 			
 		} 
 		else {
@@ -360,7 +359,7 @@ Slideshow = new Class({
 		if (this.options.loader.animate){
 			for (var i = 0; i < this.options.loader.animate[1]; i++)
 				img = new Asset.image(this.options.loader.animate[0].replace(/#/, i));
-			if (Browser.trident4 && this.options.loader.animate[0].contains('png'))
+			if (Browser.Engine.trident4 && this.options.loader.animate[0].contains('png'))
 				loader.setStyle('backgroundImage', 'none');					
 		}
 		loader.set('events', {
@@ -369,7 +368,7 @@ Slideshow = new Class({
 				var i = (loader.retrieve('i').toInt() + 1) % this.options.loader.animate[1];
 				loader.store('i', i);
 				var img = this.options.loader.animate[0].replace(/#/, i);
-				if (Browser.trident4 && this.options.loader.animate[0].contains('png'))
+				if (Browser.Engine.trident4 && this.options.loader.animate[0].contains('png'))
 					loader.style.filter = 'progid:DXImageTransform.Microsoft.AlphaImageLoader(src="' + img + '", sizingMethod="scale")';
 				else 
 					loader.setStyle('backgroundImage', 'url(' + img + ')');
