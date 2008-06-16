@@ -93,8 +93,8 @@ Slideshow = new Class({
 		var image = this.a.getSize();
 		this.width = (this.options.width || image.x);
 		this.height = (this.options.height || image.y);		
-		if (this.options.width || this.options.height)		
-			this._resize(this.a, image.x, image.y);
+		this._resize(this.a, image.x, image.y);
+		this._center(this.a);
 		var el = this.slideshow.getElement(this.classes.get('images'));
 		var images = (el) ? el.empty() : new Element('div', {'class': this.classes.get('images').substr(1)}).inject(this.slideshow);
 		images.set({'styles': {'display': 'block', 'height': this.height, 'overflow': 'hidden', 'position': 'relative', 'width': this.width}});
