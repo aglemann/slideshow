@@ -1,4 +1,4 @@
-/*
+/**
 Script: Slideshow.KenBurns.js
 	Slideshow.KenBurns - KenBurns extension for Slideshow, includes zooming and panning effects.
 
@@ -7,6 +7,9 @@ License:
 
 Copyright:
 	Copyright (c) 2008 [Aeron Glemann](http://www.electricprism.com/aeron/).
+	
+Dependencies:
+	Slideshow.
 */
 
 Slideshow.KenBurns = new Class({
@@ -17,7 +20,18 @@ Slideshow.KenBurns = new Class({
 		zoom: [50, 50]
 	},
 	
-	// constructor
+/**
+Constructor: initialize
+	Creates an instance of the Slideshow class.
+
+Arguments:
+	element - (element) The wrapper element.
+	data - (array or object) The images and optional thumbnails, captions and links for the show.
+	options - (object) The options below.
+
+Syntax:
+	var myShow = new Slideshow.KenBurns(element, data, options);
+*/
 
 	initialize: function(el, data, options){
 		options.overlap = true;
@@ -31,9 +45,12 @@ Slideshow.KenBurns = new Class({
 		this.parent(el, data, options);
 	},
 
-	// does the slideshow effect
+/**
+Private method: show
+	Does the slideshow effect.
+*/
 
-	show: function(fast){
+	_show: function(fast){
 		if (!this.image.retrieve('morph')){
 			['a', 'b'].each(function(image){
 				this[image].set('tween', {
@@ -57,8 +74,8 @@ Slideshow.KenBurns = new Class({
 			var s = (e * zoom).toInt();		
 			values[prop] = [s, e];
 			if (dw > dh || i){
-				var e = (this[prop] - this.image[prop]);
-				var s = (e * pan).toInt();			
+				e = (this[prop] - this.image[prop]);
+				s = (e * pan).toInt();			
 				values[props[i]] = [s, e];
 			}
 		}, this);

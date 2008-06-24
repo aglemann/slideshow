@@ -1,17 +1,24 @@
-/*
+/**
 Stylesheet: Slideshow.css
-	Slideshow.css - CSS for Slideshow.
+	CSS for Slideshow.
 
 License:
 	MIT-style license.
 
 Copyright:
 	Copyright (c) 2008 [Aeron Glemann](http://www.electricprism.com/aeron/).
-*/
-
-/*
-These styles are set by the Slideshow script.
-You can override any of them with the !important keyword but the slideshow probably will not work as intended.
+	
+HTML:
+	<div class="slideshow">
+		<div class="images" />
+		<div class="captions" />
+		<div class="controller" />
+		<div class="thumbnails" />
+	</div>
+	
+Notes:
+	These next four rules are set by the Slideshow script.
+	You can override any of them with the !important keyword but the slideshow probably will not work as intended.
 */
 
 .slideshow {
@@ -20,10 +27,8 @@ You can override any of them with the !important keyword but the slideshow proba
 }
 .slideshow-images {
 	display: block;
-	/* height: height_of_slideshow_or_default_image */
 	overflow: hidden;
 	position: relative;
-	/* width: width_of_slideshow_or_default_image */
 }		
 .slideshow-images img {
 	display: block;
@@ -34,40 +39,61 @@ You can override any of them with the !important keyword but the slideshow proba
 	overflow: hidden;
 }
 
-/*
-The images div is where the slides are shown.
-Customize these classes to effect the slideshow transitions: fading, wiping, etc.
+/**
+HTML:
+	<div class="images">
+		<img />
+		<img />
+	</div>
+	
+Notes:
+	The images div is where the slides are shown.
+	Customize the visible / prev / next classes to effect the slideshow transitions: fading, wiping, etc.
 */
 
+.slideshow-images {
+	height: 300px;
+	width: 400px;
+}		
 .slideshow-images-visible { 
-	left: 0; 
-	opacity: 1; 
-	top: 0; 
+	opacity: 1;
 }	
-.slideshow-images-next { 
-	left: 0; 
-	opacity: 0; 
-	top: 360px; 
-}
 .slideshow-images-prev { 
-	left: 0; 
 	opacity: 0; 
-	top: -360px; 
 }
+.slideshow-images-next { 
+	opacity: 0; 
+}
+.slideshow-images img {
+	float: left;
+	left: 0;
+	top: 0;
+}	
 
-/*
-These are examples of user-defined styles.
-Customize these classes to your usage of Slideshow.
+/**
+Notes:
+	These are examples of user-defined styles.
+	Customize these classes to your usage of Slideshow.
 */
 
 .slideshow {
-	height: 360px;
+	height: 300px;
 	margin: 0 auto;
-	width: 480px;
+	width: 400px;
 }
 .slideshow a img {
 	border: 0;
 }
+
+/**
+HTML:
+	<div class="captions">
+		...
+	</div>
+	
+Notes:
+	Customize the hidden / visible classes to affect the captions animation.
+*/
 
 .slideshow-captions {
 	background: #000;
@@ -89,6 +115,22 @@ Customize these classes to your usage of Slideshow.
 	height: 22px;
 	opacity: .7;
 }
+
+/**
+HTML:
+	<div class="controller">
+		<ul>
+			<li class="first"><a /></li>
+			<li class="prev"><a /></li>
+			<li class="pause play"><a /></li>
+			<li class="next"><a /></li>
+			<li class="last"><a /></li>
+		</ul>
+	</div>
+	
+Notes:
+	Customize the hidden / visible classes to affect the controller animation.
+*/
 
 .slideshow-controller {
 	background: url(controller.png) no-repeat;
@@ -154,9 +196,13 @@ Customize these classes to your usage of Slideshow.
 	width: 28px;
 }
 
-.slideshow-images img { 
-	float: left;
-}	
+/**
+HTML:
+	<div class="loader" />
+	
+Notes:
+	Customize the hidden / visible classes to affect the loader animation.
+*/
 
 .slideshow-loader {
 	height: 28px;
@@ -172,6 +218,22 @@ Customize these classes to your usage of Slideshow.
 .slideshow-loader-visible {
 	opacity: 1;
 }
+
+/**
+HTML:
+	<div class="thumbnails">
+		<ul>
+			<li><a class="slideshow-thumbnails-active" /></li>
+			<li><a class="slideshow-thumbnails-inactive" /></li>
+			...
+			<li><a class="slideshow-thumbnails-inactive" /></li>
+		</ul>
+	</div>
+	
+Notes:
+	Customize the active / inactive classes to affect the thumbnails animation.
+	Use the !important keyword to override FX without affecting performance.
+*/
 
 .slideshow-thumbnails {
 	bottom: -65px;
@@ -202,9 +264,6 @@ Customize these classes to your usage of Slideshow.
 	padding: 5px;
 	position: relative; 
 }
-/*
-Use the !important keyword to override any on-going javascript FX without affecting performance.
-*/
 .slideshow-thumbnails a:hover {
 	background-color: #FF9 !important;
 	opacity: 1 !important;

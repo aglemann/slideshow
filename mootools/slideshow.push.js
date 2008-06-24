@@ -1,4 +1,4 @@
-/*
+/**
 Script: Slideshow.Push.js
 	Slideshow.Push - Push extension for Slideshow.
 
@@ -9,22 +9,37 @@ Copyright:
 	Copyright (c) 2008 [Aeron Glemann](http://www.electricprism.com/aeron/).
 	
 Dependencies:
-	Fx.Elements.
+	Slideshow.
+	Mootools 1.2 More: Fx.Elements.
 */
 
 Slideshow.Push = new Class({
 	Extends: Slideshow,
 	
-	// constructor
+/**
+Constructor: initialize
+	Creates an instance of the Slideshow class.
+
+Arguments:
+	element - (element) The wrapper element.
+	data - (array or object) The images and optional thumbnails, captions and links for the show.
+	options - (object) The options below.
+
+Syntax:
+	var myShow = new Slideshow.Push(element, data, options);
+*/
 	
 	initialize: function(el, data, options){
 		options.overlap = true;		
 		this.parent(el, data, options);
 	},
 
-	// does the slideshow effect
+/**
+Private method: show
+	Does the slideshow effect.
+*/
 
-	show: function(fast){
+	_show: function(fast){
 		var images = [this.image, ((this.counter % 2) ? this.a : this.b)];
 		if (!this.image.retrieve('fx'))
 			this.image.store('fx', new Fx.Elements(images, {'duration': this.options.duration, 'link': 'cancel', 'transition': this.options.transition }));
