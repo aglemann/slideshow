@@ -60,7 +60,7 @@ Syntax:
 		this.slideshow = $(el);
 		if (!this.slideshow) 
 			return;
-		this.slideshow.set('styles', {'display': 'block', 'position': 'relative'});
+		this.slideshow.set('styles', {'display': 'block', 'position': 'relative', 'z-index': 0});
 		var match = window.location.href.match(this.options.match);
 		this.slide = (this.options.match && match) ? match[1].toInt() : this.options.slide;
 		this.counter = this.delay = this.transition = 0;
@@ -378,7 +378,11 @@ Private method: preload
 			if (this.data.hrefs[this.slide])
 				anchor.set('href', this.data.hrefs[this.slide]);			
 			else
-				anchor.erase('href');	
+				anchor.erase('href');
+			if (this.data.captions[this.slide])
+				anchor.set('title', this.data.captions[this.slide].replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, "'"));
+			else
+				anchor.erase('title');
 			if (this.options.loader)
 				this.slideshow.retrieve('loader').fireEvent('hide');
 			if (this.options.captions)

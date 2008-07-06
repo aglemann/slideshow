@@ -24,6 +24,7 @@ Notes:
 .slideshow {
 	display: block;
 	position: relative;
+	z-index: 0;
 }
 .slideshow-images {
 	display: block;
