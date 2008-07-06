@@ -44,14 +44,7 @@ Private method: show
 			var options = (this.options.overlap) ? {'duration': this.options.duration} : {'duration': this.options.duration / 2};
 			$$(this.a, this.b).set('tween', $merge(options, {'link': 'chain', 'property': 'clip', 'transition': this.options.transition}));
 		}
-		var size = {
-			'x': this.image.get('width'),
-			'y': this.image.get('height')
-		}
-		if (size.x > this.width)
-			size.x = this.width;
-		if (size.y > this.height)
-			size.y = this.height;
+		var rect = this._rect(this.image);
 		var img = (this.counter % 2) ? this.a : this.b;
 		if (fast){			
 			img.get('tween').cancel().set('rect(0, 0, 0, 0)');
@@ -60,15 +53,29 @@ Private method: show
 		else {
 			if (this.options.overlap){	
 				img.setStyle('visibility', 'visible').get('tween').set('auto');
-				this.image.setStyle('visibility', 'visible').get('tween').set('rect(0px, 0px, ' + Math.ceil(size.y / 2) + 'px, 0px)').start('rect(0px, ' + size.x + 'px, ' + Math.ceil(size.y / 2) + 'px, 0px)').start('rect(0px, ' + size.x + 'px, ' + size.y + 'px, 0px)');
+				var tween = this.image.setStyle('visibility', 'visible').get('tween').set(rect.top + ' ' + rect.left + ' ' + Math.ceil(rect.bottom / 2) + ' ' + rect.left).start(rect.top + ' ' + rect.right + ' ' + Math.ceil(rect.bottom / 2) + ' ' + rect.left).start(rect.top + ' ' + rect.right + ' ' + rect.bottom + ' ' + rect.left);
 			} 
 			else	{
-				var fn = function(hidden, visible){
-					this.image.get('morph').set(hidden).start(visible);
-				}.pass([hidden, visible], this);
-				var hidden = this.classes.get('images', ((this.direction == 'left') ? 'prev' : 'next'));
-				img.get('morph').set(visible).start(hidden).chain(fn);
+				var fn = function(rect){
+					this.image.setStyle('visibility', 'visible').get('tween').set(rect.top + ' ' + rect.left + ' ' + Math.ceil(rect.bottom / 2) + ' ' + rect.left).start(rect.top + ' ' + rect.right + ' ' + Math.ceil(rect.bottom / 2) + ' ' + rect.left).start(rect.top + ' ' + rect.right + ' ' + rect.bottom + ' ' + rect.left);
+				}.pass(rect, this);
+				var rect = this._rect(img);
+				img.setStyle('visibility', 'visible').get('tween').set(rect.top + ' ' + rect.right + ' ' + rect.bottom + ' ' + rect.left).start(rect.top + ' ' + rect.right + ' ' + Math.ceil(rect.bottom / 2) + ' ' + rect.left).start(rect.top + ' ' + rect.left + ' ' + Math.ceil(rect.bottom / 2) + ' ' + rect.left).chain(fn);
 			}
 		}
+	},
+	
+	/**
+	Private method: rect
+		Calculates the clipping rect
+	*/
+
+	_rect: function(img){
+		var rect = img.getCoordinates(this.slideshow.retrieve('images'));
+		rect.right = (rect.right > this.width) ? this.width - rect.left : rect.width;
+		rect.bottom = (rect.bottom > this.height) ? this.height - rect.top : rect.height;
+		rect.top = (rect.top < 0) ? Math.abs(rect.top) : 0;
+		rect.left = (rect.left < 0) ? Math.abs(rect.left) : 0;
+		return rect;		
 	}
 });

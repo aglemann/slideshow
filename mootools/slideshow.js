@@ -64,6 +64,7 @@ Syntax:
 		var match = window.location.href.match(this.options.match);
 		this.slide = (this.options.match && match) ? match[1].toInt() : this.options.slide;
 		this.counter = this.delay = this.transition = 0;
+		this.direction = 'left';
 		this.paused = false;
 		if (!this.options.overlap)
 			this.options.duration *= 2;
@@ -226,7 +227,7 @@ Syntax:
 		if ($chk(p))
 			this.paused = (p) ? false : true;
 		if (this.paused){
-			this.paused = this.stopped = false;
+			this.paused = false;
 			this.delay = this.transition = 0;		
 			this.timer = this._preload.delay(100, this);
 			[this.a, this.b].each(function(img){
@@ -363,6 +364,7 @@ Private method: preload
 				if (this.options.captions)
 					this.slideshow.retrieve('captions').get('morph').cancel().start(this.classes.get('captions', 'hidden'));
 				this.pause(1);
+				this.stopped = false;
 				return;				
 			}					
 			this.image = (this.counter % 2) ? this.b : this.a;
@@ -377,10 +379,10 @@ Private method: preload
 				anchor.set('href', this.data.hrefs[this.slide]);			
 			else
 				anchor.erase('href');	
-			if (this.options.captions)
-				this.slideshow.retrieve('captions').fireEvent('update', fast);				
 			if (this.options.loader)
 				this.slideshow.retrieve('loader').fireEvent('hide');
+			if (this.options.captions)
+				this.slideshow.retrieve('captions').fireEvent('update', fast);				
 			if (this.options.thumbnails)
 				this.slideshow.retrieve('thumbnails').fireEvent('update', fast); 			
 			this._show(fast);
@@ -464,7 +466,7 @@ Private method: center
 	_center: function(img){
 		if (this.options.center){
 			var size = img.getSize();
-			img.set('styles', {left: (size.x - this.width) / -2, top: (size.y - this.height) / -2});
+			img.set('styles', {'left': (size.x - this.width) / -2, 'top': (size.y - this.height) / -2});
 		}
 	},
 
@@ -505,7 +507,7 @@ Private method: captions
 					var empty = (this.data.captions[this.slide] === '');
 					if (fast){
 						var p = (empty) ? 'hidden' : 'visible';
-						captions.set('html', this.data.captions[this.slide]).get('morph').cancel().set(this.classes.get('captions', p));						
+						captions.set('html', this.data.captions[this.slide]).get('morph').cancel().set(this.classes.get('captions', p));
 					}
 					else {
 						var fn = (empty) ? $empty : function(n){
@@ -536,7 +538,9 @@ Private method: controller
 		
 		var ul = new Element('ul').inject(controller);
 		$H({'first': 'Shift + Leftwards Arrow', 'prev': 'Leftwards Arrow', 'pause': 'P', 'next': 'Rightwards Arrow', 'last': 'Shift + Rightwards Arrow'}).each(function(accesskey, action){
-			var li = new Element('li', {'class': this.classes[action]}).inject(ul);
+			var li = new Element('li', {
+				'class': (action == 'pause' && this.options.paused) ? this.classes.play + ' ' + this.classes[action] : this.classes[action]
+			}).inject(ul);
 			var a = this.slideshow.retrieve(action, new Element('a', {
 				'title': ((action == 'pause') ? this.classes.play.capitalize() + ' / ' : '') + this.classes[action].capitalize() + ' [' + accesskey + ']'				
 			}).inject(li));
