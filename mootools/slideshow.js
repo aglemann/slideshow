@@ -35,7 +35,7 @@ Slideshow = new Class({
 		paused: false,
 		random: false,
 		replace: [/\.(.{3})$/, 't.$1'],
-		resize: true,
+		resize: 'width',
 		slide: 0,
 		thumbnails: false,
 		transition: function(p){return -(Math.cos(Math.PI * p) - 1) / 2;},
@@ -488,8 +488,8 @@ Private method: resize
 			var w = this.preloader.get('width');
 			var dh = this.height / h;
 			var dw = this.width / w;
-			var delta = (dw > dh) ? dw : dh;
-			img.set('styles', {height: Math.ceil(h * delta), width: Math.ceil(w * delta)});
+			var d = (dh > dw && this.resize == 'width' || dh < dw && this.resize == 'length') ? dh : dw ;
+			img.set('styles', {height: Math.ceil(h * d), width: Math.ceil(w * d)});
 		}	
 	},
 
