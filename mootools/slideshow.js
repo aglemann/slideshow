@@ -91,12 +91,15 @@ Syntax:
 		// data	
 			
 		if (!data){
+			this.options.hu = '';
 			data = {};
-			this.slideshow.getElements(this.classes.get('images') + ' img').each(function(img){
-				var src = img.get('src').split('/').getLast();
+			var thumbnails = this.slideshow.getElements(this.classes.get('thumbnails') + ' img');
+			this.slideshow.getElements(this.classes.get('images') + ' img').each(function(img, i){
+				var src = img.get('src');
 				var caption = img.get('alt') || img.get('title') || '';
 				var href = img.getParent().get('href') || '';
-				data[src] = {'caption': caption, 'href': href};
+				var thumbnail = thumbnails[i].get('src') || '';
+				data[src] = {'caption': caption, 'href': href, 'thumbnail': thumbnail};
 			});
 		}
 		var loaded = this.load(data);
