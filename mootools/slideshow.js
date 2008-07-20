@@ -484,11 +484,12 @@ Private method: resize
 
 	_resize: function(img){
 		if (this.options.resize){
-			var h = this.preloader.get('height');
-			var w = this.preloader.get('width');
-			var dh = this.height / h;
-			var dw = this.width / w;
-			var d = (dh > dw && this.resize == 'width' || dh < dw && this.resize == 'length') ? dh : dw ;
+			var h = this.preloader.get('height'), w = this.preloader.get('width');
+			var dh = this.height / h, dw = this.width / w, d;
+			if (this.options.resize == 'length')
+				d = (dh > dw) ? dw : dh;
+			else
+				d = (dh > dw) ? dh : dw;
 			img.set('styles', {height: Math.ceil(h * d), width: Math.ceil(w * d)});
 		}	
 	},

@@ -189,7 +189,10 @@ Notes:
 	width: 20px;
 }
 .slideshow-controller li.play a {
-	background-image: url(controller-play.gif);
+	background-position: 20px 0;
+}
+.slideshow-controller li.play a.active {
+	background-position: 20px 18px;
 }
 .slideshow-controller li.prev a {
 	background-image: url(controller-prev.gif);
