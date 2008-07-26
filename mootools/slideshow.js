@@ -31,6 +31,10 @@ Slideshow = new Class({
 		loader: {'animate': ['css/loader-#.png', 12]},
 		loop: true,
 		match: /\?slide=(\d+)$/,
+		/*
+		onComplete: $empty,
+		onStart: $empty,
+		*/
 		overlap: true,
 		paused: false,
 		random: false,
@@ -410,7 +414,7 @@ Private method: show
 	_show: function(fast){
 		if (!this.image.retrieve('morph')){
 			var options = (this.options.overlap) ? {'duration': this.options.duration, 'link': 'cancel'} : {'duration': this.options.duration / 2, 'link': 'chain'};
-			$$(this.a, this.b).set('morph', $merge(options, {'transition': this.options.transition}));
+			$$(this.a, this.b).set('morph', $merge(options, {'onStart': this._start.bind(this), 'onComplete': this._complete.bind(this), 'transition': this.options.transition}));
 		}
 		var hidden = this.classes.get('images', ((this.direction == 'left') ? 'next' : 'prev'));
 		var visible = this.classes.get('images', 'visible');
@@ -444,7 +448,7 @@ Private method: loaded
 		this.delay = (this.paused) ? Number.MAX_VALUE : $time() + this.options.duration + this.options.delay;
 		this.direction = 'left';
 		this.transition = (this.paused || this.options.fast) ? 0 : $time() + this.options.duration;			
-		if ((this.slide + 1 == this.data.images.length && !this.options.loop && !this.options.random) || (this.firstrun && this.options.paused))
+		if (this.slide + 1 == this.data.images.length && !this.options.loop && !this.options.random)
 			this.stopped = true;			
 		if (this.options.random){
 			this.showed.i++;
@@ -459,7 +463,6 @@ Private method: loaded
 		}
 		else
 			this.slide = (this.slide + 1) % this.data.images.length;
-		this.firstrun = false;
 		if (this.preloader) 
 			this.preloader = this.preloader.destroy();
 		this._preload();
@@ -495,6 +498,28 @@ Private method: resize
 	},
 
 /**
+Private method: start
+	Callback on start of slide change.
+*/
+
+	_start: function(){		
+		this.fireEvent('start');
+	},
+
+/**
+Private method: complete
+	Callback on start of slide change.
+*/
+
+	_complete: function(){
+		if (this.firstrun && this.options.paused){
+			this.firstrun = false;
+			this.pause(1);
+		}
+		this.fireEvent('complete');
+	},
+
+/**
 Private method: captions
 	Builds the optional caption element, adds interactivity.
 	This method can safely be removed if the captions option is not enabled.
@@ -505,9 +530,6 @@ Private method: captions
  			this.options.captions = {};
 		var el = this.slideshow.getElement(this.classes.get('captions'));
 		var captions = (el) ? el.empty() : new Element('div', {'class': this.classes.get('captions').substr(1)}).inject(this.slideshow);
-		
-		// add captions interactivity
-		
 		captions.set({
 			'events': {
 				'update': function(fast){	
@@ -541,9 +563,6 @@ Private method: controller
  			this.options.controller = {};
 		var el = this.slideshow.getElement(this.classes.get('controller'));
 		var controller = (el) ? el.empty() : new Element('div', {'class': this.classes.get('controller').substr(1)}).inject(this.slideshow);
-		
-		// add controller interactivity
-		
 		var ul = new Element('ul').inject(controller);
 		$H({'first': 'Shift + Leftwards Arrow', 'prev': 'Leftwards Arrow', 'pause': 'P', 'next': 'Rightwards Arrow', 'last': 'Shift + Rightwards Arrow'}).each(function(accesskey, action){
 			var li = new Element('li', {
@@ -571,9 +590,6 @@ Private method: controller
 			},
 			'morph': $merge(this.options.controller, {'link': 'cancel'})
 		}).store('hidden', false);
-		
-		// extend window events
-		
 		var keydown = function(e){
 			if (['left', 'right', 'p'].contains(e.key)){
 				var controller = this.slideshow.retrieve('controller');
@@ -637,9 +653,6 @@ Private method: loader
 			if (Browser.Engine.trident4 && this.options.loader.animate[0].contains('png'))
 				loader.setStyle('backgroundImage', 'none');					
 		}
-		
-		// add loader interactivity
-		
 		loader.set('events', {
 			'animate': function(){  
 				var loader = this.slideshow.retrieve('loader');				
@@ -683,9 +696,6 @@ Private method: thumbnails
 		var el = this.slideshow.getElement(this.classes.get('thumbnails'));
 		var thumbnails = (el) ? el.empty() : new Element('div', {'class': this.classes.get('thumbnails').substr(1)}).inject(this.slideshow);
 		thumbnails.setStyle('overflow', 'hidden');
-		
-		// add thumbnails interactivity
-		
 		var ul = new Element('ul', {'tween': {'link': 'cancel'}}).inject(thumbnails);
 		this.data.thumbnails.each(function(thumbnail, i){
 			var li = new Element('li').inject(ul);
