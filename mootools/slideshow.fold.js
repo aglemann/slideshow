@@ -42,7 +42,7 @@ Private method: show
 	_show: function(fast){
 		if (!this.image.retrieve('tween')){
 			var options = (this.options.overlap) ? {'duration': this.options.duration} : {'duration': this.options.duration / 2};
-			$$(this.a, this.b).set('tween', $merge(options, {'link': 'chain', 'property': 'clip', 'transition': this.options.transition}));
+			$$(this.a, this.b).set('tween', $merge(options, {'link': 'chain', 'onStart': this._start.bind(this), 'onComplete': this._complete.bind(this), 'property': 'clip', 'transition': this.options.transition}));
 		}
 		var rect = this._rect(this.image);
 		var img = (this.counter % 2) ? this.a : this.b;

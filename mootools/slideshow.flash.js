@@ -46,7 +46,7 @@ Private method: show
 
 	_show: function(fast){
 		if (!this.image.retrieve('tween'))
-		  $$(this.a, this.b).set('tween', {'duration': this.options.duration, 'link': 'cancel', 'property': 'opacity'});
+		  $$(this.a, this.b).set('tween', {'duration': this.options.duration, 'link': 'cancel', 'onStart': this._start.bind(this), 'onComplete': this._complete.bind(this), 'property': 'opacity'});
 		if (fast)
 			this.image.get('tween').cancel().set(1);
 		else {
