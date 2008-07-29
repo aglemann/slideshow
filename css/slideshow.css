@@ -42,7 +42,7 @@ Notes:
 
 /**
 HTML:
-	<div class="images">
+	<div class="slideshow-images">
 		<img />
 		<img />
 	</div>
@@ -88,7 +88,7 @@ Notes:
 
 /**
 HTML:
-	<div class="captions">
+	<div class="slideshow-captions">
 		...
 	</div>
 	
@@ -119,7 +119,7 @@ Notes:
 
 /**
 HTML:
-	<div class="controller">
+	<div class="slideshow-controller">
 		<ul>
 			<li class="first"><a /></li>
 			<li class="prev"><a /></li>
@@ -202,7 +202,7 @@ Notes:
 
 /**
 HTML:
-	<div class="loader" />
+	<div class="slideshow-loader" />
 	
 Notes:
 	Customize the hidden / visible classes to affect the loader animation.
@@ -225,7 +225,7 @@ Notes:
 
 /**
 HTML:
-	<div class="thumbnails">
+	<div class="slideshow-thumbnails">
 		<ul>
 			<li><a class="slideshow-thumbnails-active" /></li>
 			<li><a class="slideshow-thumbnails-inactive" /></li>

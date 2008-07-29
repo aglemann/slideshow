@@ -26,7 +26,7 @@ Slideshow = new Class({
 		fast: false,
 		height: false,
 		href: '',
-		hu: '/',
+		hu: '',
 		linked: false,
 		loader: {'animate': ['css/loader-#.png', 12]},
 		loop: true,

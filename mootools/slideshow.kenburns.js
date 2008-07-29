@@ -79,10 +79,14 @@ Private method: show
 				values[props[i]] = [s, e];
 			}
 		}, this);
-		if (fast){
+		var paused = (this.firstrun && this.options.paused);
+		if (fast || paused){
 			this._center(this.image);
 			this.image.get('morph').cancel();
-			this.image.get('tween').cancel().set(1);
+			if (paused)
+				this.image.get('tween').cancel().set(0).start(1);
+			else
+				this.image.get('tween').cancel().set(1);
 		} 
 		else{
 			this.image.get('morph').start(values);

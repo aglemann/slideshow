@@ -15,8 +15,6 @@ Dependencies:
 Slideshow.Fold = new Class({
 	Extends: Slideshow,
 	
-	options: {},
-	
 /**
 Constructor: initialize
 	Creates an instance of the Slideshow class.
