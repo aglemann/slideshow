@@ -39,7 +39,7 @@ Slideshow = new Class({
 		overlap: true,
 		paused: false,
 		random: false,
-		replace: [/\.(.{3})$/, 't.$1'],
+		replace: [/(\.[^\.]+)$/, 't$1'],
 		resize: 'width',
 		slide: 0,
 		thumbnails: false,
@@ -302,7 +302,7 @@ Syntax:
 		this.showed = {'array': [], 'i': 0};
 		if ($type(data) == 'array'){
 			this.options.captions = false;			
-			data = new Array(data.length).associate(data); 
+			data = new Array(data.length).associate(data.map(function(image, i){ return image + '?' + i })); 
 		}
 		this.data = {'images': [], 'captions': [], 'hrefs': [], 'thumbnails': []};
 		for (image in data){
