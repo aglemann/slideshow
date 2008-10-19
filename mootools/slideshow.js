@@ -33,6 +33,7 @@ Slideshow = new Class({
 		match: /\?slide=(\d+)$/,
 		/*
 		onComplete: $empty,
+		onEnd: $empty,
 		onStart: $empty,
 		*/
 		overlap: true,
@@ -371,7 +372,9 @@ Private method: preload
 				if (this.options.captions)
 					this.slideshow.retrieve('captions').get('morph').cancel().start(this.classes.get('captions', 'hidden'));
 				this.pause(1);
-				this.stopped = false;
+				if (this.end)
+					this.fireEvent('end');
+				this.stopped = this.end = false;
 				return;				
 			}					
 			this.image = (this.counter % 2) ? this.b : this.a;
@@ -449,7 +452,7 @@ Private method: loaded
 		this.direction = 'left';
 		this.transition = (this.paused || this.options.fast) ? 0 : $time() + this.options.duration;			
 		if (this.slide + 1 == this.data.images.length && !this.options.loop && !this.options.random)
-			this.stopped = true;			
+			this.stopped = this.end = true;			
 		if (this.options.random){
 			this.showed.i++;
 			if (this.showed.i >= this.showed.array.length){
