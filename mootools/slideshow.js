@@ -76,9 +76,9 @@ Syntax:
 		var anchor = this.slideshow.getElement('a') || new Element('a');
 		if (!this.options.href)
 			this.options.href = anchor.get('href') || '';
-		if (this.options.hu.length && this.options.hu.substr(-1) != '/') 
+		if (this.options.hu.length && !this.options.hu.test(/\/$/)) 
 			this.options.hu += '/';
-		
+			
 		// styles
 		
 		var keys = ['slideshow', 'first', 'prev', 'play', 'pause', 'next', 'last', 'images', 'captions', 'controller', 'thumbnails', 'hidden', 'visible', 'inactive', 'active', 'loader'];
