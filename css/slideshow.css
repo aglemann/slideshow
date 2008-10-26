@@ -10,10 +10,11 @@ Copyright:
 	
 HTML:
 	<div class="slideshow">
-		<div class="images" />
-		<div class="captions" />
-		<div class="controller" />
-		<div class="thumbnails" />
+		<div class="slideshow-images" />
+		<div class="slideshow-captions" />
+		<div class="slideshow-controller" />
+		<div class="slideshow-loader" />
+		<div class="slideshow-thumbnails" />
 	</div>
 	
 Notes:
