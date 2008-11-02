@@ -352,7 +352,6 @@ Syntax:
 			$clear(this.slideshow.retrieve('loader').retrieve('timer'));		
 		if (this.options.thumbnails)
 			$clear(this.slideshow.retrieve('thumbnails').retrieve('timer'));
-		Element.Storage[this.slideshow.uid] = {};
 		if (p)
 			$try(this.slideshow[p]());
 	},
