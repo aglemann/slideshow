@@ -352,8 +352,9 @@ Syntax:
 			$clear(this.slideshow.retrieve('loader').retrieve('timer'));		
 		if (this.options.thumbnails)
 			$clear(this.slideshow.retrieve('thumbnails').retrieve('timer'));
+		this.slideshow.uid = Native.UID++;
 		if (p)
-			$try(this.slideshow[p]());
+			this.slideshow[p]();
 	},
 	
 /**
