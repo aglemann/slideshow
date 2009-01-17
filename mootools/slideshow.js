@@ -16,7 +16,10 @@ Dependencies:
 Slideshow = new Class({
 	Implements: [Chain, Events, Options],
 	
-	options: {
+	options: {/*
+		onComplete: $empty,
+		onEnd: $empty,
+		onStart: $empty,*/
 		captions: false,
 		center: true,
 		classes: [],
@@ -31,11 +34,6 @@ Slideshow = new Class({
 		loader: {'animate': ['css/loader-#.png', 12]},
 		loop: true,
 		match: /\?slide=(\d+)$/,
-		/*
-		onComplete: $empty,
-		onEnd: $empty,
-		onStart: $empty,
-		*/
 		overlap: true,
 		paused: false,
 		random: false,
@@ -103,7 +101,7 @@ Syntax:
 				var src = img.get('src');
 				var caption = img.get('alt') || img.get('title') || '';
 				var href = img.getParent().get('href') || '';
-				var thumbnail = thumbnails[i].get('src') || '';
+				var thumbnail = (thumbnails[i]) ? thumbnails[i].get('src') : '';
 				data[src] = {'caption': caption, 'href': href, 'thumbnail': thumbnail};
 			});
 		}
@@ -367,7 +365,7 @@ Private method: preload
 		 	this.preloader = new Asset.image(this.options.hu + this.data.images[this.slide], {'onload': function(){
 				this.store('loaded', true);
 			}});	
-		if (this.preloader.retrieve('loaded') && $time() > this.delay && $time() > this.transition){
+		if (this.preloader.retrieve('loaded') /*&& this.preloader.offsetWidth*/ && $time() > this.delay && $time() > this.transition){
 			if (this.stopped){
 				if (this.options.captions)
 					this.slideshow.retrieve('captions').get('morph').cancel().start(this.classes.get('captions', 'hidden'));
