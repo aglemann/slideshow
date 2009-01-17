@@ -313,6 +313,8 @@ Syntax:
 			this.data.hrefs.push(href);
 			this.data.thumbnails.push(thumbnail);
 		}
+		if (this.options.random)
+			this.slide = $random(0, this.data.images.length - 1);
 		
 		// only run when data is loaded dynamically into an existing slideshow instance
 		
