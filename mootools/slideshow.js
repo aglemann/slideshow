@@ -26,7 +26,7 @@ Slideshow = new Class({
 		controller: false,
 		delay: 2000,
 		duration: 750,
-		fast: false,
+		fast: 0,
 		height: false,
 		href: '',
 		hu: '',
@@ -41,6 +41,7 @@ Slideshow = new Class({
 		resize: 'width',
 		slide: 0,
 		thumbnails: false,
+		titles: true,
 		transition: function(p){return -(Math.cos(Math.PI * p) - 1) / 2;},
 		width: false
 	},
@@ -135,6 +136,8 @@ Syntax:
 		images.set({'styles': {'display': 'block', 'height': this.height, 'overflow': 'hidden', 'position': 'relative', 'width': this.width}});
 		this.slideshow.store('images', images);
 		this.a = this.image = this.slideshow.getElement('img') || new Element('img');
+		if (Browser.Engine.trident && Browser.Engine.version > 4)
+			this.a.style.msInterpolationMode = 'bicubic';
 		this.a.set('styles', {'display': 'none', 'position': 'absolute', 'zIndex': 1});
 		this.b = this.a.clone();
 		[this.a, this.b].each(function(img){
@@ -303,7 +306,7 @@ Syntax:
 			data = new Array(data.length).associate(data.map(function(image, i){ return image + '?' + i })); 
 		}
 		this.data = {'images': [], 'captions': [], 'hrefs': [], 'thumbnails': []};
-		for (image in data){
+		for (var image in data){
 			var obj = data[image] || {};
 			var caption = (obj.caption) ? obj.caption.trim() : '';
 			var href = (obj.href) ? obj.href.trim() : ((this.options.linked) ? this.options.hu + image : this.options.href);
@@ -367,7 +370,7 @@ Private method: preload
 		 	this.preloader = new Asset.image(this.options.hu + this.data.images[this.slide], {'onload': function(){
 				this.store('loaded', true);
 			}});	
-		if (this.preloader.retrieve('loaded') /*&& this.preloader.offsetWidth*/ && $time() > this.delay && $time() > this.transition){
+		if (this.preloader.retrieve('loaded') && $time() > this.delay && $time() > this.transition){
 			if (this.stopped){
 				if (this.options.captions)
 					this.slideshow.retrieve('captions').get('morph').cancel().start(this.classes.get('captions', 'hidden'));
@@ -389,10 +392,12 @@ Private method: preload
 				anchor.set('href', this.data.hrefs[this.slide]);			
 			else
 				anchor.erase('href');
-			if (this.data.captions[this.slide])
-				anchor.set('title', this.data.captions[this.slide].replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, "'"));
-			else
-				anchor.erase('title');
+			var text = (this.data.captions[this.slide])
+				? this.data.captions[this.slide].replace(/<.+?>/gm, '').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, "'") 
+				: '';
+			this.image.set('alt', text);		
+			if (this.options.titles)
+				anchor.set('title', text);
 			if (this.options.loader)
 				this.slideshow.retrieve('loader').fireEvent('hide');
 			if (this.options.captions)
@@ -424,16 +429,18 @@ Private method: show
 		var img = (this.counter % 2) ? this.a : this.b;
 		if (fast){			
 			img.get('morph').cancel().set(hidden);
-			this.image.get('morph').cancel().set(visible); 			
+			this.image.setStyle('visibility', 'visible').get('morph').cancel().set(visible); 			
 		} 
 		else {
 			if (this.options.overlap){	
 				img.get('morph').set(visible);
-				this.image.get('morph').set(hidden).start(visible);
+				this.image.get('morph').set(hidden);
+				this.image.setStyle('visibility', 'visible').get('morph').start(visible);
 			} 
 			else	{
 				var fn = function(hidden, visible){
-					this.image.get('morph').set(hidden).start(visible);
+					this.image.get('morph').set(hidden);
+					this.image.setStyle('visibility', 'visible').get('morph').start(visible);
 				}.pass([hidden, visible], this);
 				hidden = this.classes.get('images', ((this.direction == 'left') ? 'prev' : 'next'));
 				img.get('morph').set(visible).start(hidden).chain(fn);
@@ -723,9 +730,10 @@ Private method: thumbnails
 					}.bind(this)
 				},
 				'href': this.options.hu + this.data.images[i],
-				'morph': $merge(this.options.thumbnails, {'link': 'cancel'}),
-				'title': this.data.captions[i]
+				'morph': $merge(this.options.thumbnails, {'link': 'cancel'})
 			}).inject(li);
+			if (this.data.captions[i] && this.options.titles)
+				a.set('title', this.data.captions[i].replace(/<.+?>/gm, '').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, "'"));
 			var img = new Asset.image(this.options.hu + thumbnail, {
 				'onload': function(){this.fireEvent('loaded');}.bind(a) 
 			}).inject(a);
