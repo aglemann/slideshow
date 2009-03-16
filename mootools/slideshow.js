@@ -26,7 +26,7 @@ Slideshow = new Class({
 		controller: false,
 		delay: 2000,
 		duration: 750,
-		fast: 0,
+		fast: false,
 		height: false,
 		href: '',
 		hu: '',
@@ -77,6 +77,8 @@ Syntax:
 			this.options.href = anchor.get('href') || '';
 		if (this.options.hu.length && !this.options.hu.test(/\/$/)) 
 			this.options.hu += '/';
+		if (this.options.fast === true)
+			this.options.fast = 2;
 			
 		// styles
 		
@@ -141,7 +143,7 @@ Syntax:
 		this.a.set('styles', {'display': 'none', 'position': 'absolute', 'zIndex': 1});
 		this.b = this.a.clone();
 		[this.a, this.b].each(function(img){
-			anchor.clone().grab(img).inject(images);
+			anchor.clone().cloneEvents(anchor).grab(img).inject(images);
 		});
 		
 		// optional elements
@@ -180,7 +182,7 @@ Syntax:
 		this.slide = n;
 		if (this.preloader) 
 			this.preloader = this.preloader.destroy();
-		this._preload(this.options.fast || this.paused);
+		this._preload(this.options.fast == 2 || (this.options.fast == 1 && this.paused));
 	},
 
 /**
@@ -457,7 +459,7 @@ Private method: loaded
 		this.counter++;
 		this.delay = (this.paused) ? Number.MAX_VALUE : $time() + this.options.duration + this.options.delay;
 		this.direction = 'left';
-		this.transition = (this.paused || this.options.fast) ? 0 : $time() + this.options.duration;			
+		this.transition = (this.options.fast == 2 || (this.options.fast == 1 && this.paused)) ? 0 : $time() + this.options.duration;			
 		if (this.slide + 1 == this.data.images.length && !this.options.loop && !this.options.random)
 			this.stopped = this.end = true;			
 		if (this.options.random){
