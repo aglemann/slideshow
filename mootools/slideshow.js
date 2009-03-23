@@ -36,6 +36,7 @@ Slideshow = new Class({
 		match: /\?slide=(\d+)$/,
 		overlap: true,
 		paused: false,
+		properties: ['href', 'rel', 'rev', 'title'],
 		random: false,
 		replace: [/(\.[^\.]+)$/, 't$1'],
 		resize: 'width',
@@ -102,7 +103,9 @@ Syntax:
 			var thumbnails = this.slideshow.getElements(this.classes.get('thumbnails') + ' img');
 			this.slideshow.getElements(this.classes.get('images') + ' img').each(function(img, i){
 				var src = img.get('src');
-				var caption = img.get('alt') || img.get('title') || '';
+				var caption = $pick(img.get('alt'), img.get('title'), '');
+				var parent = img.getParent();
+				var properties = (parent.get('tag') == 'a') ? parent.getProperties : {};
 				var href = img.getParent().get('href') || '';
 				var thumbnail = (thumbnails[i]) ? thumbnails[i].get('src') : '';
 				data[src] = {'caption': caption, 'href': href, 'thumbnail': thumbnail};
@@ -431,18 +434,16 @@ Private method: show
 		var img = (this.counter % 2) ? this.a : this.b;
 		if (fast){			
 			img.get('morph').cancel().set(hidden);
-			this.image.setStyle('visibility', 'visible').get('morph').cancel().set(visible); 			
+			this.image.get('morph').cancel().set(visible); 			
 		} 
 		else {
-			if (this.options.overlap){	
+			if (this.options.overlap){
 				img.get('morph').set(visible);
-				this.image.get('morph').set(hidden);
-				this.image.setStyle('visibility', 'visible').get('morph').start(visible);
+				this.image.get('morph').set(hidden).start(visible);
 			} 
 			else	{
 				var fn = function(hidden, visible){
-					this.image.get('morph').set(hidden);
-					this.image.setStyle('visibility', 'visible').get('morph').start(visible);
+					this.image.get('morph').set(hidden).start(visible);
 				}.pass([hidden, visible], this);
 				hidden = this.classes.get('images', ((this.direction == 'left') ? 'prev' : 'next'));
 				img.get('morph').set(visible).start(hidden).chain(fn);
@@ -475,6 +476,8 @@ Private method: loaded
 		}
 		else
 			this.slide = (this.slide + 1) % this.data.images.length;
+		if (this.image.getStyle('visibility') != 'visible')
+			(function(){ this.image.setStyle('visibility', 'visible'); }).delay(1, this);			
 		if (this.preloader) 
 			this.preloader = this.preloader.destroy();
 		this._preload();
