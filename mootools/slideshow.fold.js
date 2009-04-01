@@ -46,19 +46,19 @@ Private method: show
 		var img = (this.counter % 2) ? this.a : this.b;
 		if (fast){			
 			img.get('tween').cancel().set('rect(0, 0, 0, 0)');
-			this.image.setStyle('visibility', 'visible').get('tween').cancel().set('auto'); 			
+			this.image.get('tween').cancel().set('rect(auto, auto, auto, auto)'); 			
 		} 
 		else {
 			if (this.options.overlap){	
-				img.setStyle('visibility', 'visible').get('tween').set('auto');
-				var tween = this.image.setStyle('visibility', 'visible').get('tween').set(rect.top + ' ' + rect.left + ' ' + Math.ceil(rect.bottom / 2) + ' ' + rect.left).start(rect.top + ' ' + rect.right + ' ' + Math.ceil(rect.bottom / 2) + ' ' + rect.left).start(rect.top + ' ' + rect.right + ' ' + rect.bottom + ' ' + rect.left);
+				img.get('tween').set('rect(auto, auto, auto, auto)');
+				var tween = this.image.get('tween').set(rect.top + ' ' + rect.left + ' ' + Math.ceil(rect.bottom / 2) + ' ' + rect.left).start(rect.top + ' ' + rect.right + ' ' + Math.ceil(rect.bottom / 2) + ' ' + rect.left).start(rect.top + ' ' + rect.right + ' ' + rect.bottom + ' ' + rect.left);
 			} 
 			else	{
 				var fn = function(rect){
-					this.image.setStyle('visibility', 'visible').get('tween').set(rect.top + ' ' + rect.left + ' ' + Math.ceil(rect.bottom / 2) + ' ' + rect.left).start(rect.top + ' ' + rect.right + ' ' + Math.ceil(rect.bottom / 2) + ' ' + rect.left).start(rect.top + ' ' + rect.right + ' ' + rect.bottom + ' ' + rect.left);
+					this.image.get('tween').set(rect.top + ' ' + rect.left + ' ' + Math.ceil(rect.bottom / 2) + ' ' + rect.left).start(rect.top + ' ' + rect.right + ' ' + Math.ceil(rect.bottom / 2) + ' ' + rect.left).start(rect.top + ' ' + rect.right + ' ' + rect.bottom + ' ' + rect.left);
 				}.pass(rect, this);
 				var rect = this._rect(img);
-				img.setStyle('visibility', 'visible').get('tween').set(rect.top + ' ' + rect.right + ' ' + rect.bottom + ' ' + rect.left).start(rect.top + ' ' + rect.right + ' ' + Math.ceil(rect.bottom / 2) + ' ' + rect.left).start(rect.top + ' ' + rect.left + ' ' + Math.ceil(rect.bottom / 2) + ' ' + rect.left).chain(fn);
+				img.get('tween').set(rect.top + ' ' + rect.right + ' ' + rect.bottom + ' ' + rect.left).start(rect.top + ' ' + rect.right + ' ' + Math.ceil(rect.bottom / 2) + ' ' + rect.left).start(rect.top + ' ' + rect.left + ' ' + Math.ceil(rect.bottom / 2) + ' ' + rect.left).chain(fn);
 			}
 		}
 	},
