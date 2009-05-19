@@ -66,8 +66,6 @@ Syntax:
     if (!this.slideshow) 
       return;
     this.slideshow.set('styles', {'display': 'block', 'position': 'relative', 'z-index': 0});
-    var match = window.location.href.match(this.options.match);
-    this.slide = (this.options.match && match) ? match[1].toInt() : this.options.slide;
     this.counter = this.delay = this.transition = 0;
     this.direction = 'left';
     this.paused = false;
@@ -160,6 +158,17 @@ Syntax:
     if (this.options.thumbnails)
       this._thumbnails();
       
+    // setup first slide  
+      
+    this.slide = this.options.slide;
+    var match = window.location.href.match(this.options.match);
+    if (this.options.match && match){
+      if (this.data.images.contains(match[1]))
+        this.slide = this.data.images.indexOf(match[1]);
+      else if ($type(match[1].toInt()) == 'number')
+        this.slide = match[1] % this.data.images.length;
+    }
+
     // begin show
     
     this._preload();
@@ -622,42 +631,34 @@ Private method: controller
     }).store('hidden', false);
     var keydown = function(e){
       if (['left', 'right', 'p'].contains(e.key)){
-        var controller = this.slideshow.retrieve('controller');
+        var controller = this.slideshow.retrieve('controller'), action = 'pause';
         if (controller.retrieve('hidden'))
-          controller.get('morph').set(this.classes.get('controller', 'visible'));       
-        switch(e.key){
-          case 'left': 
-            this.slideshow.retrieve((e.shift) ? 'first' : 'prev').fireEvent('mouseenter'); break;
-          case 'right':
-            this.slideshow.retrieve((e.shift) ? 'last' : 'next').fireEvent('mouseenter'); break;
-          default:
-            this.slideshow.retrieve('pause').fireEvent('mouseenter'); break;
-        }
+          controller.get('morph').set(this.classes.get('controller', 'visible'));
+        if (e.key == 'left')
+          action = e.shift ? 'first' : 'prev';
+        if (e.key == 'right')
+          action = e.shift ? 'last' : 'prev';
+        this.slideshow.retrieve(action).fireEvent('mouseenter');
       }
     }.bind(this);
     this.events.keydown.push(keydown);
     var keyup = function(e){
       if (['left', 'right', 'p'].contains(e.key)){
-        var controller = this.slideshow.retrieve('controller');
+        var controller = this.slideshow.retrieve('controller'), action = 'pause';
         if (controller.retrieve('hidden'))
           controller.store('hidden', false).fireEvent('hide'); 
-        switch(e.key){
-          case 'left': 
-            this.slideshow.retrieve((e.shift) ? 'first' : 'prev').fireEvent('mouseleave'); break;
-          case 'right': 
-            this.slideshow.retrieve((e.shift) ? 'last' : 'next').fireEvent('mouseleave'); break;
-          default:
-            this.slideshow.retrieve('pause').fireEvent('mouseleave'); break;
-        }
+        if (e.key == 'left')
+          action = e.shift ? 'first' : 'prev';
+        if (e.key == 'right')
+          action = e.shift ? 'last' : 'prev';
+        this.slideshow.retrieve(action).fireEvent('mouseleave');
       }
     }.bind(this);
     this.events.keyup.push(keyup);
     var mousemove = function(e){
       var images = this.slideshow.retrieve('images').getCoordinates();
-      if (e.page.x > images.left && e.page.x < images.right && e.page.y > images.top && e.page.y < images.bottom)
-        this.slideshow.retrieve('controller').fireEvent('show');
-      else
-        this.slideshow.retrieve('controller').fireEvent('hide');
+      var action = (e.page.x > images.left && e.page.x < images.right && e.page.y > images.top && e.page.y < images.bottom) ? 'show' : 'hide';
+      this.slideshow.retrieve('controller').fireEvent(action);
     }.bind(this);
     this.events.mousemove.push(mousemove);
     document.addEvents({'keydown': keydown, 'keyup': keyup, 'mousemove': mousemove});
