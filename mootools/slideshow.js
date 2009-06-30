@@ -20,6 +20,7 @@ Slideshow = new Class({
     onComplete: $empty,
     onEnd: $empty,
     onStart: $empty,*/
+    accesskeys: { 'first': 'shift + left', 'prev': 'left', 'pause': 'p', 'next': 'right', 'last': 'shift + right' },
     captions: false,
     center: true,
     classes: [],
@@ -36,6 +37,7 @@ Slideshow = new Class({
     match: /\?slide=(\d+)$/,
     overlap: true,
     paused: false,
+    preload: false,
     properties: ['href', 'rel', 'rev', 'title'],
     random: false,
     replace: [/(\.[^\.]+)$/, 't$1'],
@@ -47,22 +49,22 @@ Slideshow = new Class({
     width: false
   },
   
-/**
-Constructor: initialize
-  Creates an instance of the Slideshow class.
+  /**
+  Constructor: initialize
+    Creates an instance of the Slideshow class.
   
-Arguments:
-  element - (element) The wrapper element.
-  data - (array or object) The images and optional thumbnails, captions and links for the show.
-  options - (object) The options below.
+  Arguments:
+    element - (element) The wrapper element.
+    data - (array or object) The images and optional thumbnails, captions and links for the show.
+    options - (object) The options below.
   
-Syntax:
-  var myShow = new Slideshow(element, data, options);
-*/
+  Syntax:
+    var myShow = new Slideshow(element, data, options);
+  */
 
   initialize: function(el, data, options){  
     this.setOptions(options);
-    this.slideshow = $(el);
+    this.slideshow = document.id(el);
     if (!this.slideshow) 
       return;
     this.slideshow.set('styles', {'display': 'block', 'position': 'relative', 'z-index': 0});
@@ -174,16 +176,16 @@ Syntax:
     this._preload();
   },
   
-/**
-Public method: go
-  Jump directly to a slide in the show.
+  /**
+  Public method: go
+    Jump directly to a slide in the show.
 
-Arguments:
-  n - (integer) The index number of the image to jump to, 0 being the first image in the show.
+  Arguments:
+    n - (integer) The index number of the image to jump to, 0 being the first image in the show.
   
-Syntax:
-  myShow.go(n);  
-*/
+  Syntax:
+    myShow.go(n);  
+  */
 
   go: function(n, direction){
     if ((this.slide - 1 + this.data.images.length) % this.data.images.length == n || $time() < this.transition)
@@ -197,25 +199,25 @@ Syntax:
     this._preload(this.options.fast == 2 || (this.options.fast == 1 && this.paused));
   },
 
-/**
-Public method: first
-  Goes to the first image in the show.
+  /**
+  Public method: first
+    Goes to the first image in the show.
 
-Syntax:
-  myShow.first();  
-*/
+  Syntax:
+    myShow.first();  
+  */
 
   first: function(){
     this.prev(true); 
   },
 
-/**
-Public method: prev
-  Goes to the previous image in the show.
+  /**
+  Public method: prev
+    Goes to the previous image in the show.
 
-Syntax:
-  myShow.prev();  
-*/
+  Syntax:
+    myShow.prev();  
+  */
 
   prev: function(first){
     var n = 0;
@@ -235,16 +237,16 @@ Syntax:
     this.go(n, 'right');
   },
 
-/**
-Public method: pause
-  Toggles play / pause state of the show.
+  /**
+  Public method: pause
+    Toggles play / pause state of the show.
 
-Arguments:
-  p - (undefined, 1 or 0) Call pause with no arguments to toggle the pause state. Call pause(1) to force pause, or pause(0) to force play.
+  Arguments:
+    p - (undefined, 1 or 0) Call pause with no arguments to toggle the pause state. Call pause(1) to force pause, or pause(0) to force play.
 
-Syntax:
-  myShow.pause(p);  
-*/
+  Syntax:
+    myShow.pause(p);  
+  */
 
   pause: function(p){
     if ($chk(p))
@@ -276,41 +278,41 @@ Syntax:
     }
   },
   
-/**
-Public method: next
-  Goes to the next image in the show.
+  /**
+  Public method: next
+    Goes to the next image in the show.
 
-Syntax:
-  myShow.next();  
-*/
+  Syntax:
+    myShow.next();  
+  */
 
   next: function(last){
     var n = (last) ? this.data.images.length - 1 : this.slide;
     this.go(n, 'left');
   },
 
-/**
-Public method: last
-  Goes to the last image in the show.
+  /**
+  Public method: last
+    Goes to the last image in the show.
 
-Syntax:
-  myShow.last();  
-*/
+  Syntax:
+    myShow.last();  
+  */
 
   last: function(){
     this.next(true); 
   },
 
-/**
-Public method: load
-  Loads a new data set into the show: will stop the current show, rewind and rebuild thumbnails if applicable.
+  /**
+  Public method: load
+    Loads a new data set into the show: will stop the current show, rewind and rebuild thumbnails if applicable.
 
-Arguments:
-  data - (array or object) The images and optional thumbnails, captions and links for the show.
+  Arguments:
+    data - (array or object) The images and optional thumbnails, captions and links for the show.
 
-Syntax:
-  myShow.load(data);
-*/
+  Syntax:
+    myShow.load(data);
+  */
 
   load: function(data){
     this.firstrun = true;
@@ -332,6 +334,11 @@ Syntax:
     }
     if (this.options.random)
       this.slide = $random(0, this.data.images.length - 1);
+    if (this.options.preload){
+      this.data.images.each(function(image){
+        new Asset.image(this.options.hu + image);
+      }, this);
+    }
     
     // only run when data is loaded dynamically into an existing slideshow instance
     
@@ -349,16 +356,16 @@ Syntax:
     return this.data.images.length;
   },
   
-/**
-Public method: destroy
-  Destroys a Slideshow instance.
+  /**
+  Public method: destroy
+    Destroys a Slideshow instance.
 
-Arguments:
-  p - (string) The images and optional thumbnails, captions and links for the show.
+  Arguments:
+    p - (string) The images and optional thumbnails, captions and links for the show.
 
-Syntax:
-  myShow.destroy(p);
-*/
+  Syntax:
+    myShow.destroy(p);
+  */
 
   destroy: function(p){
     this.events.each(function(array, e){
@@ -374,10 +381,10 @@ Syntax:
       this.slideshow[p]();
   },
   
-/**
-Private method: preload
-  Preloads the next slide in the show, once loaded triggers the show, updates captions, thumbnails, etc.
-*/
+  /**
+  Private method: preload
+    Preloads the next slide in the show, once loaded triggers the show, updates captions, thumbnails, etc.
+  */
 
   _preload: function(fast){
     if (!this.preloader)
@@ -443,10 +450,10 @@ Private method: preload
     }
   },
 
-/**
-Private method: show
-  Does the slideshow effect.
-*/
+  /**
+  Private method: show
+    Does the slideshow effect.
+  */
 
   _show: function(fast){
     if (!this.image.retrieve('morph')){
@@ -474,11 +481,11 @@ Private method: show
       }
     }
   },
-  
-/**
-Private method: loaded
-  Run after the current image has been loaded, sets up the next image to be shown.
-*/
+
+  /**
+  Private method: loaded
+    Run after the current image has been loaded, sets up the next image to be shown.
+  */
 
   _loaded: function(){
     this.counter++;
@@ -507,10 +514,10 @@ Private method: loaded
     this._preload();
   },
 
-/**
-Private method: center
-  Center an image.
-*/
+  /**
+  Private method: center
+    Center an image.
+  */
 
   _center: function(img){
     if (this.options.center){
@@ -519,10 +526,10 @@ Private method: center
     }
   },
 
-/**
-Private method: resize
-  Resizes an image.
-*/
+  /**
+  Private method: resize
+    Resizes an image.
+  */
 
   _resize: function(img){
     if (this.options.resize){
@@ -536,19 +543,19 @@ Private method: resize
     }  
   },
 
-/**
-Private method: start
-  Callback on start of slide change.
-*/
+  /**
+  Private method: start
+    Callback on start of slide change.
+  */
 
   _start: function(){    
     this.fireEvent('start');
   },
 
-/**
-Private method: complete
-  Callback on start of slide change.
-*/
+  /**
+  Private method: complete
+    Callback on start of slide change.
+  */
 
   _complete: function(){
     if (this.firstrun && this.options.paused){
@@ -558,11 +565,11 @@ Private method: complete
     this.fireEvent('complete');
   },
 
-/**
-Private method: captions
-  Builds the optional caption element, adds interactivity.
-  This method can safely be removed if the captions option is not enabled.
-*/
+  /**
+  Private method: captions
+    Builds the optional caption element, adds interactivity.
+    This method can safely be removed if the captions option is not enabled.
+  */
 
   _captions: function(){
      if (this.options.captions === true) 
@@ -591,14 +598,14 @@ Private method: captions
     this.slideshow.store('captions', captions);
   },
 
-/**
-Private method: controller
-  Builds the optional controller element, adds interactivity.
-  This method can safely be removed if the controller option is not enabled.
-*/
+  /**
+  Private method: controller
+    Builds the optional controller element, adds interactivity.
+    This method can safely be removed if the controller option is not enabled.
+  */
 
   _controller: function(){
-     if (this.options.controller === true)
+    if (this.options.controller === true)
        this.options.controller = {};
     var el = this.slideshow.getElement(this.classes.get('controller'));
     var controller = (el) ? el.empty() : new Element('div', {'class': this.classes.get('controller').substr(1)}).inject(this.slideshow);
@@ -637,7 +644,7 @@ Private method: controller
         if (e.key == 'left')
           action = e.shift ? 'first' : 'prev';
         if (e.key == 'right')
-          action = e.shift ? 'last' : 'prev';
+          action = e.shift ? 'last' : 'next';
         this.slideshow.retrieve(action).fireEvent('mouseenter');
       }
     }.bind(this);
@@ -650,7 +657,7 @@ Private method: controller
         if (e.key == 'left')
           action = e.shift ? 'first' : 'prev';
         if (e.key == 'right')
-          action = e.shift ? 'last' : 'prev';
+          action = e.shift ? 'last' : 'next';
         this.slideshow.retrieve(action).fireEvent('mouseleave');
       }
     }.bind(this);
@@ -663,16 +670,16 @@ Private method: controller
     this.events.mousemove.push(mousemove);
     document.addEvents({'keydown': keydown, 'keyup': keyup, 'mousemove': mousemove});
     this.slideshow.retrieve('controller', controller).fireEvent('hide');
-  },
+  },  
 
-/**
-Private method: loader
-  Builds the optional loader element, adds interactivity.
-  This method can safely be removed if the loader option is not enabled.
-*/
+  /**
+  Private method: loader
+    Builds the optional loader element, adds interactivity.
+    This method can safely be removed if the loader option is not enabled.
+  */
 
   _loader: function(){
-     if (this.options.loader === true) 
+    if (this.options.loader === true) 
        this.options.loader = {};
     var loader = new Element('div', {
       'class': this.classes.get('loader').substr(1),        
@@ -715,21 +722,21 @@ Private method: loader
     this.slideshow.retrieve('loader', loader).fireEvent('hide');
   },
   
-/**
-Private method: thumbnails
-  Builds the optional thumbnails element, adds interactivity.
-  This method can safely be removed if the thumbnails option is not enabled.
-*/
+  /**
+  Private method: thumbnails
+    Builds the optional thumbnails element, adds interactivity.
+    This method can safely be removed if the thumbnails option is not enabled.
+  */
 
-  _thumbnails: function(){
-     if (this.options.thumbnails === true) 
+  _thumbnails: function() {
+    if (this.options.thumbnails === true) 
        this.options.thumbnails = {}; 
     var el = this.slideshow.getElement(this.classes.get('thumbnails'));
     var thumbnails = (el) ? el.empty() : new Element('div', {'class': this.classes.get('thumbnails').substr(1)}).inject(this.slideshow);
     thumbnails.setStyle('overflow', 'hidden');
-    var ul = new Element('ul', {'tween': {'link': 'cancel'}}).inject(thumbnails);
+    var ul = new Element('ul', {'styles': {'left': 0, 'position': 'absolute', 'top': 0}, 'tween': {'link': 'cancel'}}).inject(thumbnails);
     this.data.thumbnails.each(function(thumbnail, i){
-      var li = new Element('li').inject(ul);
+      var li = new Element('li', {'styles':{'opacity': 0}}).inject(ul);
       var a = new Element('a', {
         'events': {
           'click': function(i){
@@ -743,25 +750,25 @@ Private method: thumbnails
       if (this.data.captions[i] && this.options.titles)
         a.set('title', this.data.captions[i].replace(/<.+?>/gm, '').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, "'"));
       new Asset.image(this.options.hu + thumbnail, {
-        'onload': function(){
-          this.data.thumbnails.pop();
-          if (!this.data.thumbnails.length)
-            this.slideshow.retrieve('thumbnails').fireEvent('resize');
-        }.bind(this)
+        'onload': function(i){
+          var thumbnails = this.slideshow.retrieve('thumbnails');
+          var item = thumbnails.getElement('li:nth-child(' + (i + 1) + ')').fade('in');
+          if (thumbnails.retrieve('limit'))
+            return;
+          var props = thumbnails.retrieve('props');
+          var pos = props[1], length = props[2], width = props[4]; 
+          var div = thumbnails.getCoordinates();
+          var li = item.getCoordinates();
+          var n = Math.floor(div[width] / li[width]); // number of rows or columns
+          var x = Math.ceil(this.data.images.length / n); // number of images per row or column
+          var len = x * li.width; // length of a single row or column
+          thumbnails.getElement('ul').setStyle(length, len);
+          thumbnails.store('limit', div[length] - len);
+          thumbnails.getElements('li').setStyles({'height': li.height, 'width': li.width});
+        }.pass(i, this)
       }).inject(a);
     }, this);
     thumbnails.set('events', {
-      'resize': function(){
-        var div = this.getCoordinates();
-        var props = this.retrieve('props');      
-        var limit = 0, pos = props[1], size = props[2];  
-        this.getElements('li').each(function(li){      
-          var li = li.getCoordinates();    
-          limit = Math.max(limit, li[pos]);
-        }, this);
-        this.getElement('ul').setStyle(props[2], limit);
-        this.store('limit', div[size] + div[props[0]] - limit);
-      },
       'scroll': function(n, fast){
         var div = this.getCoordinates();
         var ul = this.getElement('ul').getPosition();
@@ -814,9 +821,8 @@ Private method: thumbnails
       }.bind(this)
     })
     var div = thumbnails.getCoordinates();
-    var props = (div.height > div.width) ? ['top', 'bottom', 'height', 'y'] : ['left', 'right', 'width', 'x'];
+    var props = (div.height > div.width) ? ['top', 'bottom', 'height', 'y', 'width'] : ['left', 'right', 'width', 'x', 'height'];
     thumbnails.store('props', props);
-    ul.setStyle(props[2], 256 * 256);
     var mousemove = function(e){
       var div = this.getCoordinates();
       if (e.page.x > div.left && e.page.x < div.right && e.page.y > div.top && e.page.y < div.bottom){
@@ -835,6 +841,6 @@ Private method: thumbnails
     }.bind(thumbnails);
     this.events.mousemove.push(mousemove);
     document.addEvent('mousemove', mousemove);
-    this.slideshow.store('thumbnails', thumbnails);
+    this.slideshow.store('thumbnails', thumbnails);  
   }
 });

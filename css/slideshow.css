@@ -18,7 +18,7 @@ HTML:
   </div>
   
 Notes:
-  These next four rules are set by the Slideshow script.
+  These next five rules are set by the Slideshow script.
   You can override any of them with the !important keyword but the slideshow probably will not work as intended.
 */
 
@@ -39,6 +39,11 @@ Notes:
 }    
 .slideshow-thumbnails {
   overflow: hidden;
+}
+.slideshow-thumbnails ul {
+  left: 0;
+  position: absolute;
+  top: 0;
 }
 
 /**
@@ -79,7 +84,7 @@ Notes:
 */
 
 .slideshow {
-  height: 300px;
+  height: 600px;
   margin: 0 auto;
   width: 400px;
 }
@@ -156,6 +161,7 @@ Notes:
   opacity: 1;
 }
 .slideshow-controller a {
+  background: url(controller-controls.png) no-repeat;
   cursor: pointer;
   display: block;
   height: 18px;
@@ -163,42 +169,53 @@ Notes:
   position: absolute;
   top: 12px;
 }
-.slideshow-controller a.active {
-  background-position: 0 18px;
-}
 .slideshow-controller li {
   list-style: none;
-}
+}       
 .slideshow-controller li.first a {
-  background-image: url(controller-first.gif);
   left: 33px;
   width: 19px;
 }
-.slideshow-controller li.last a {
-  background-image: url(controller-last.gif);
-  left: 186px;
-  width: 19px;
+.slideshow-controller li.first a.active {
+  background-position: 0 -18px;
 }
-.slideshow-controller li.next a {
-  background-image: url(controller-next.gif);
-  left: 145px;
+.slideshow-controller li.prev a {
+  background-position: -19px 0;
+  left: 65px;
   width: 28px;
 }
+.slideshow-controller li.prev a.active {
+  background-position: -19px -18px;
+}
 .slideshow-controller li.pause a {
-  background-image: url(controller-pause.gif);
+  background-position: -47px 0;
   left: 109px;
   width: 20px;
 }
+.slideshow-controller li.pause a.active {
+  background-position: -47px -18px;
+}
 .slideshow-controller li.play a {
-  background-position: 20px 0;
+  background-position: -67px 0;
 }
 .slideshow-controller li.play a.active {
-  background-position: 20px 18px;
+  background-position: -67px -18px;
 }
-.slideshow-controller li.prev a {
-  background-image: url(controller-prev.gif);
-  left: 65px;
+.slideshow-controller li.next a {
+  background-position: -87px 0;
+  left: 145px;
   width: 28px;
+}
+.slideshow-controller li.next a.active {
+  background-position: -87px -18px;
+}
+.slideshow-controller li.last a {
+  background-position: -115px 0;
+  left: 186px;
+  width: 19px;
+}
+.slideshow-controller li.last a.active {
+  background-position: -115px -18px;
 }
 
 /**
@@ -241,8 +258,8 @@ Notes:
 */
 
 .slideshow-thumbnails {
-  bottom: -65px;
-  height: 65px;
+  bottom: -55px;
+  height: 55px;
   left: 0;
   position: absolute;
   width: 100%;
@@ -251,24 +268,15 @@ Notes:
   margin: 0;
   padding: 0;
 }
-.slideshow-thumbnails ul {
-  height: 65px;
-  left: 0;
-  position: absolute;
-  top: 0;
-  width: 100%;
-}
 .slideshow-thumbnails li {
   float: left;
   list-style: none;
-  margin: 5px 5px 5px 0;
-  position: relative;
 }
 .slideshow-thumbnails a {
   display: block;
   float: left;
+  margin: 5px 5px 0 0;
   padding: 5px;
-  position: relative; 
 }
 .slideshow-thumbnails a:hover {
   background-color: #FF9 !important;
