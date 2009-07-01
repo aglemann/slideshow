@@ -84,7 +84,7 @@ Notes:
 */
 
 .slideshow {
-  height: 600px;
+  height: 300px;
   margin: 0 auto;
   width: 400px;
 }
@@ -275,10 +275,8 @@ Notes:
 .slideshow-thumbnails a {
   display: block;
   float: left;
-	left: 0;
   margin: 5px 5px 0 0;
   padding: 5px;
-	position: relative;
 }
 .slideshow-thumbnails a:hover {
   background-color: #FF9 !important;
@@ -290,15 +288,12 @@ Notes:
 .slideshow-thumbnails-hidden {
   background-color: #FFF;
   opacity: 0;
-	top: 50px;
 }
 .slideshow-thumbnails-inactive {
   background-color: #FFF;
   opacity: .5;
-	top: 0;
 }
 .slideshow-thumbnails-active {
   background-color: #9FF;
   opacity: 1;
-	top: 0;
 }

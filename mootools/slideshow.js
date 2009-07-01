@@ -775,7 +775,7 @@ Slideshow = new Class({
           var len = x * li[length]; // length of a single row or column
           var ul = thumbnails.getElement('ul').setStyle(length, len);
           var lis = ul.getElements('li').setStyles({'height': li.height, 'width': li.width});
-          if (props[5] == 'portrait'){
+          if (this.options.thumbnails.scroll == 'y'){
             ul.innerHTML = '';
             for (var i = 0; i < x; i++){
               for (var j = 0; j < n; j++){
@@ -845,8 +845,10 @@ Slideshow = new Class({
       }.bind(this)
     })
     var div = thumbnails.getCoordinates();
-    var props = (this.options.thumbnails.scroll == 'y' || (!this.options.thumbnails.scroll && div.height > div.width)) ? ['top', 'bottom', 'height', 'y', 'width', 'portrait'] 
-      : ['left', 'right', 'width', 'x', 'height', 'landscape'];
+    if (!this.options.thumbnails.scroll)
+      this.options.thumbnails.scroll = (div.height > div.width) ? 'y' : 'x';
+    var props = (this.options.thumbnails.scroll == 'y') ? ['top', 'bottom', 'height', 'y', 'width'] 
+      : ['left', 'right', 'width', 'x', 'height'];
     thumbnails.store('props', props);
     var mousemove = function(e){
       var div = this.getCoordinates();
