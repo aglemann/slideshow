@@ -107,7 +107,7 @@ Slideshow = new Class({
         var parent = img.getParent();
         var properties = (parent.get('tag') == 'a') ? parent.getProperties : {};
         var href = img.getParent().get('href') || '';
-        var thumbnail = (thumbnails[i]) ? thumbnails[i].get('src') : '';
+        var thumbnail = thumbnails[i] ? thumbnails[i].get('src') : '';
         data[src] = {'caption': caption, 'href': href, 'thumbnail': thumbnail};
       });
     }
@@ -134,7 +134,8 @@ Slideshow = new Class({
     // required elements
       
     var el = this.slideshow.getElement(this.classes.get('images'));
-    var images = (el) ? el.empty() : new Element('div', {'class': this.classes.get('images').substr(1)}).inject(this.slideshow);
+    var images = el ? el.empty() 
+      : new Element('div', {'class': this.classes.get('images').substr(1)}).inject(this.slideshow);
     var div = images.getSize();
     this.height = this.options.height || div.y;    
     this.width = this.options.width || div.x;
@@ -192,7 +193,8 @@ Slideshow = new Class({
       return;    
     $clear(this.timer);
     this.delay = 0;    
-    this.direction = (direction) ? direction : ((n < this.slide) ? 'right' : 'left');
+    this.direction = direction ? direction 
+      : ((n < this.slide) ? 'right' : 'left');
     this.slide = n;
     if (this.preloader) 
       this.preloader = this.preloader.destroy();
@@ -250,7 +252,7 @@ Slideshow = new Class({
 
   pause: function(p){
     if ($chk(p))
-      this.paused = (p) ? false : true;
+      this.paused = p ? false : true;
     if (this.paused){
       this.paused = false;
       this.delay = this.transition = 0;    
@@ -287,7 +289,7 @@ Slideshow = new Class({
   */
 
   next: function(last){
-    var n = (last) ? this.data.images.length - 1 : this.slide;
+    var n = last ? this.data.images.length - 1 : this.slide;
     this.go(n, 'left');
   },
 
@@ -324,9 +326,12 @@ Slideshow = new Class({
     this.data = {'images': [], 'captions': [], 'hrefs': [], 'thumbnails': []};
     for (var image in data){
       var obj = data[image] || {};
-      var caption = (obj.caption) ? obj.caption.trim() : '';
-      var href = (obj.href) ? obj.href.trim() : ((this.options.linked) ? this.options.hu + image : this.options.href);
-      var thumbnail = (obj.thumbnail) ? obj.thumbnail.trim() : image.replace(this.options.replace[0], this.options.replace[1]);
+      var caption = obj.caption ? obj.caption.trim() : '';
+      var href = obj.href ? obj.href.trim() 
+        : (this.options.linked ? this.options.hu + image 
+        : this.options.href);
+      var thumbnail = obj.thumbnail ? obj.thumbnail.trim() 
+        : image.replace(this.options.replace[0], this.options.replace[1]);
       this.data.images.push(image);
       this.data.captions.push(caption);
       this.data.hrefs.push(href);
@@ -428,9 +433,7 @@ Slideshow = new Class({
         anchor.set('href', this.data.hrefs[this.slide]);      
       else
         anchor.erase('href');
-      var text = (this.data.captions[this.slide])
-        ? this.data.captions[this.slide].replace(/<.+?>/gm, '').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, "'") 
-        : '';
+      var text = this.data.captions[this.slide] ? this.data.captions[this.slide].replace(/<.+?>/gm, '').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, "'") : '';
       this.image.set('alt', text);    
       if (this.options.titles)
         anchor.set('title', text);
@@ -446,7 +449,8 @@ Slideshow = new Class({
     else {
       if ($time() > this.delay && this.options.loader)
         this.slideshow.retrieve('loader').fireEvent('show');
-      this.timer = (this.paused && this.preloader.retrieve('loaded')) ? null : this._preload.delay(100, this, fast); 
+      this.timer = (this.paused && this.preloader.retrieve('loaded')) ? null 
+        : this._preload.delay(100, this, fast); 
     }
   },
 
@@ -457,7 +461,8 @@ Slideshow = new Class({
 
   _show: function(fast){
     if (!this.image.retrieve('morph')){
-      var options = (this.options.overlap) ? {'duration': this.options.duration, 'link': 'cancel'} : {'duration': this.options.duration / 2, 'link': 'chain'};
+      var options = this.options.overlap ? {'duration': this.options.duration, 'link': 'cancel'} 
+        : {'duration': this.options.duration / 2, 'link': 'chain'};
       $$(this.a, this.b).set('morph', $merge(options, {'onStart': this._start.bind(this), 'onComplete': this._complete.bind(this), 'transition': this.options.transition}));
     }
     var hidden = this.classes.get('images', ((this.direction == 'left') ? 'next' : 'prev'));
@@ -489,7 +494,7 @@ Slideshow = new Class({
 
   _loaded: function(){
     this.counter++;
-    this.delay = (this.paused) ? Number.MAX_VALUE : $time() + this.options.duration + this.options.delay;
+    this.delay = this.paused ? Number.MAX_VALUE : $time() + this.options.duration + this.options.delay;
     this.direction = 'left';
     this.transition = (this.options.fast == 2 || (this.options.fast == 1 && this.paused)) ? 0 : $time() + this.options.duration;      
     if (this.slide + 1 == this.data.images.length && !this.options.loop && !this.options.random)
@@ -575,18 +580,19 @@ Slideshow = new Class({
      if (this.options.captions === true) 
        this.options.captions = {};
     var el = this.slideshow.getElement(this.classes.get('captions'));
-    var captions = (el) ? el.empty() : new Element('div', {'class': this.classes.get('captions').substr(1)}).inject(this.slideshow);
+    var captions = el ? el.empty() 
+      : new Element('div', {'class': this.classes.get('captions').substr(1)}).inject(this.slideshow);
     captions.set({
       'events': {
         'update': function(fast){  
           var captions = this.slideshow.retrieve('captions');
           var empty = (this.data.captions[this.slide] === '');
           if (fast){
-            var p = (empty) ? 'hidden' : 'visible';
+            var p = empty ? 'hidden' : 'visible';
             captions.set('html', this.data.captions[this.slide]).get('morph').cancel().set(this.classes.get('captions', p));
           }
           else {
-            var fn = (empty) ? $empty : function(n){
+            var fn = empty ? $empty : function(n){
               this.slideshow.retrieve('captions').set('html', this.data.captions[n]).morph(this.classes.get('captions', 'visible'))
             }.pass(this.slide, this);    
             captions.get('morph').cancel().start(this.classes.get('captions', 'hidden')).chain(fn);
@@ -608,7 +614,7 @@ Slideshow = new Class({
     if (this.options.controller === true)
        this.options.controller = {};
     var el = this.slideshow.getElement(this.classes.get('controller'));
-    var controller = (el) ? el.empty() : new Element('div', {'class': this.classes.get('controller').substr(1)}).inject(this.slideshow);
+    var controller = el ? el.empty() : new Element('div', {'class': this.classes.get('controller').substr(1)}).inject(this.slideshow);
     var ul = new Element('ul').inject(controller);
     $H({'first': 'Shift + Leftwards Arrow', 'prev': 'Leftwards Arrow', 'pause': 'P', 'next': 'Rightwards Arrow', 'last': 'Shift + Rightwards Arrow'}).each(function(accesskey, action){
       var li = new Element('li', {
@@ -732,7 +738,7 @@ Slideshow = new Class({
     if (this.options.thumbnails === true) 
        this.options.thumbnails = {}; 
     var el = this.slideshow.getElement(this.classes.get('thumbnails'));
-    var thumbnails = (el) ? el.empty() : new Element('div', {'class': this.classes.get('thumbnails').substr(1)}).inject(this.slideshow);
+    var thumbnails = el ? el.empty() : new Element('div', {'class': this.classes.get('thumbnails').substr(1)}).inject(this.slideshow);
     var uuid = thumbnails.setStyle('overflow', 'hidden').retrieve('uuid', this.classes['thumbnails'] + '-' + $time());
     var ul = new Element('ul', {'styles': {'left': 0, 'position': 'absolute', 'top': 0}, 'tween': {'link': 'cancel'}}).inject(thumbnails);
     this.data.thumbnails.each(function(thumbnail, i){
@@ -766,10 +772,10 @@ Slideshow = new Class({
           var li = thumbnails.getElement('li:nth-child(' + (i + 1) + ')').getCoordinates();
           var n = Math.floor(div[width] / li[width]); // number of rows or columns
           var x = Math.ceil(this.data.images.length / n); // number of images per row or column
-          var len = x * li.width; // length of a single row or column
+          var len = x * li[length]; // length of a single row or column
           var ul = thumbnails.getElement('ul').setStyle(length, len);
           var lis = ul.getElements('li').setStyles({'height': li.height, 'width': li.width});
-          if (div.height > div.width){ // portrait only
+          if (props[5] == 'portrait'){
             ul.innerHTML = '';
             for (var i = 0; i < x; i++){
               for (var j = 0; j < n; j++){
@@ -839,7 +845,8 @@ Slideshow = new Class({
       }.bind(this)
     })
     var div = thumbnails.getCoordinates();
-    var props = (div.height > div.width) ? ['top', 'bottom', 'height', 'y', 'width'] : ['left', 'right', 'width', 'x', 'height'];
+    var props = (this.options.thumbnails.scroll == 'y' || (!this.options.thumbnails.scroll && div.height > div.width)) ? ['top', 'bottom', 'height', 'y', 'width', 'portrait'] 
+      : ['left', 'right', 'width', 'x', 'height', 'landscape'];
     thumbnails.store('props', props);
     var mousemove = function(e){
       var div = this.getCoordinates();
