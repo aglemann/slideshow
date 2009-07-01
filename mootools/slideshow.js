@@ -733,11 +733,12 @@ Slideshow = new Class({
        this.options.thumbnails = {}; 
     var el = this.slideshow.getElement(this.classes.get('thumbnails'));
     var thumbnails = (el) ? el.empty() : new Element('div', {'class': this.classes.get('thumbnails').substr(1)}).inject(this.slideshow);
-    thumbnails.setStyle('overflow', 'hidden');
+    var uuid = thumbnails.setStyle('overflow', 'hidden').retrieve('uuid', this.classes['thumbnails'] + '-' + $time());
     var ul = new Element('ul', {'styles': {'left': 0, 'position': 'absolute', 'top': 0}, 'tween': {'link': 'cancel'}}).inject(thumbnails);
     this.data.thumbnails.each(function(thumbnail, i){
-      var li = new Element('li', {'styles':{'opacity': 0}}).inject(ul);
+      var li = new Element('li', {'id': uuid + i}).inject(ul);
       var a = new Element('a', {
+        'class': this.classes.get('thumbnails', 'hidden').substr(1),
         'events': {
           'click': function(i){
             this.go(i); 
@@ -745,26 +746,39 @@ Slideshow = new Class({
           }.pass(i, this)
         },
         'href': this.options.hu + this.data.images[i],
-        'morph': $merge(this.options.thumbnails, {'link': 'cancel'})
-      }).inject(li);
-      if (this.data.captions[i] && this.options.titles)
-        a.set('title', this.data.captions[i].replace(/<.+?>/gm, '').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, "'"));
+        'morph': $merge(this.options.thumbnails, {'link': 'cancel'}),
+        'title': (this.data.captions[i] && this.options.titles) ? this.data.captions[i].replace(/<.+?>/gm, '').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, "'") : ''
+      }).store('uuid', i).inject(li);
       new Asset.image(this.options.hu + thumbnail, {
         'onload': function(i){
           var thumbnails = this.slideshow.retrieve('thumbnails');
-          var item = thumbnails.getElement('li:nth-child(' + (i + 1) + ')').fade('in');
+          var a = thumbnails.getElements('a')[i]
+          if (a){
+            (function(a){              
+              a.store('loaded', true).get('morph').set(this.classes.get('thumbnails', 'hidden')).start(this.classes.get('thumbnails', 'inactive'));  
+            }).delay(50 * i, this, a);
+          }          
           if (thumbnails.retrieve('limit'))
             return;
           var props = thumbnails.retrieve('props');
           var pos = props[1], length = props[2], width = props[4]; 
           var div = thumbnails.getCoordinates();
-          var li = item.getCoordinates();
+          var li = thumbnails.getElement('li:nth-child(' + (i + 1) + ')').getCoordinates();
           var n = Math.floor(div[width] / li[width]); // number of rows or columns
           var x = Math.ceil(this.data.images.length / n); // number of images per row or column
           var len = x * li.width; // length of a single row or column
-          thumbnails.getElement('ul').setStyle(length, len);
+          var ul = thumbnails.getElement('ul').setStyle(length, len);
+          var lis = ul.getElements('li').setStyles({'height': li.height, 'width': li.width});
+          if (div.height > div.width){ // portrait only
+            ul.innerHTML = '';
+            for (var i = 0; i < x; i++){
+              for (var j = 0; j < n; j++){
+                var li = lis[i + (x * j)];
+                if (li) li.inject(ul);
+              }
+            }
+          }
           thumbnails.store('limit', div[length] - len);
-          thumbnails.getElements('li').setStyles({'height': li.height, 'width': li.width});
         }.pass(i, this)
       }).inject(a);
     }, this);
@@ -776,7 +790,8 @@ Slideshow = new Class({
         var axis = props[3], delta, pos = props[0], size = props[2], value;        
         var tween = this.getElement('ul').get('tween', {'property': pos});  
         if ($chk(n)){
-          var li = this.getElements('li')[n].getCoordinates();
+          var uuid = this.retrieve('uuid');
+          var li = $(uuid + n).getCoordinates();
           delta = div[pos] + (div[size] / 2) - (li[size] / 2) - li[pos]  
           value = (ul[axis] - div[pos] + delta).limit(this.retrieve('limit'), 0);
           if (fast)  
@@ -798,21 +813,24 @@ Slideshow = new Class({
       }.bind(thumbnails),
       'update': function(fast){
         var thumbnails = this.slideshow.retrieve('thumbnails');
-        thumbnails.getElements('a').each(function(a, i){  
-          if (i == this.slide){
-            if (!a.retrieve('active', false)){
-              a.store('active', true);
-              var active = this.classes.get('thumbnails', 'active');              
-              if (fast) a.get('morph').set(active);
-              else a.morph(active);
-            }
-          } 
-          else {
-            if (a.retrieve('active', true)){
-              a.store('active', false);
-              var inactive = this.classes.get('thumbnails', 'inactive');            
-              if (fast) a.get('morph').set(inactive);
-              else a.morph(inactive);
+        var uuid = thumbnails.retrieve('uuid');
+        thumbnails.getElements('a').each(function(a, i){
+          if (a.retrieve('loaded')){
+            if (a.retrieve('uuid') == this.slide){
+              if (!a.retrieve('active', false)){
+                a.store('active', true);
+                var active = this.classes.get('thumbnails', 'active');              
+                if (fast) a.get('morph').set(active);
+                else a.morph(active);
+              }
+            } 
+            else {
+              if (a.retrieve('active', true)){
+                a.store('active', false);
+                var inactive = this.classes.get('thumbnails', 'inactive');            
+                if (fast) a.get('morph').set(inactive);
+                else a.morph(inactive);
+              }
             }
           }
         }, this);
