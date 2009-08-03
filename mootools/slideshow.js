@@ -766,21 +766,44 @@ Slideshow = new Class({
           }          
           if (thumbnails.retrieve('limit'))
             return;
-          var props = thumbnails.retrieve('props');
+          var props = thumbnails.retrieve('props'), options = this.options.thumbnails;
           var pos = props[1], length = props[2], width = props[4]; 
-          var div = thumbnails.getCoordinates();
           var li = thumbnails.getElement('li:nth-child(' + (i + 1) + ')').getCoordinates();
+          if (options.columns || options.rows){
+            thumbnails.setStyles({'height': this.height, 'width': this.width});
+            var n;
+            if (options.columns){
+              if (n = options.columns.toInt())
+                thumbnails.setStyle('width', li.width * n);
+            }
+            if (options.rows){
+              if (n = options.rows.toInt())
+                thumbnails.setStyle('height', li.height * n);
+            }
+          }
+          var div = thumbnails.getCoordinates();
+          if (options.position){
+            if (options.position.test(/bottom|top/))
+              thumbnails.setStyles({'bottom': 'auto', 'top': 'auto'}).setStyle(options.position, -div.height);
+            if (options.position.test(/left|right/))
+              thumbnails.setStyles({'left': 'auto', 'right': 'auto'}).setStyle(options.position, -div.width);
+          }
           var n = Math.floor(div[width] / li[width]); // number of rows or columns
           var x = Math.ceil(this.data.images.length / n); // number of images per row or column
+          var r = this.data.images.length % n; // remainder
           var len = x * li[length]; // length of a single row or column
           var ul = thumbnails.getElement('ul').setStyle(length, len);
           var lis = ul.getElements('li').setStyles({'height': li.height, 'width': li.width});
-          if (this.options.thumbnails.scroll == 'y'){
+          if (options.scroll == 'y'){ // for vertical scrolling we have to resort the thumbnails in the container
             ul.innerHTML = '';
+            var counter = this.data.images.length;
             for (var i = 0; i < x; i++){
               for (var j = 0; j < n; j++){
-                var li = lis[i + (x * j)];
-                if (li) li.inject(ul);
+                if (!counter) break;
+                counter--;
+                var m = i + (x * j);
+                if (j > r) m -= (j - r);
+                lis[m].inject(ul);
               }
             }
           }
