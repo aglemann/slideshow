@@ -84,9 +84,9 @@ Notes:
 */
 
 .slideshow {
-  height: 300px;
+  height: auto;
   margin: 0 auto;
-  width: 400px;
+  width: auto;
 }
 .slideshow a img {
   border: 0;
@@ -227,6 +227,7 @@ Notes:
 */
 
 .slideshow-loader {
+  background: url(loader-0.apng) no-repeat;
   height: 28px;
   right: 0;
   position: absolute;
