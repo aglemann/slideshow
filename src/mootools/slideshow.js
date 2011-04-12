@@ -582,6 +582,7 @@ Dependencies:
 			fps: 50,
 			transition: 'sine:in:out',
 			unit: false, */
+			delay: 0,
 			link: 'cancel'			
 		},
 
@@ -602,7 +603,7 @@ Dependencies:
 				'events': { 'update': this.update.bind(slideshow) },
 				'morph': this.options,
 				'role': 'description'
-			});
+			}).store('delay', this.options.delay);
 		    if (!caption.get('id'))
 		    	caption.set('id', 'Slideshow-' + Date.now());
 		    slideshow.el.retrieve('images').set('aria-labelledby', caption.get('id'));
@@ -610,15 +611,19 @@ Dependencies:
 		},
 
 		update: function(fast){
-		    var empty = (this.data.captions[this._slide] === '');
+		    var empty = !this.data.captions[this._slide].length, timer;
+			if (timer = this.caption.retrieve('timer'))
+				clearTimeout(timer);
 		    if (fast){
 		      var p = empty ? 'hidden' : 'visible';
 		      this.caption.set({'aria-hidden': empty, 'html': this.data.captions[this._slide]}).get('morph').cancel().set(this.classes.get('captions', p));
 		    }
 		    else {
-		      var fn1 = empty ? function(){} : function(n){
-		        this.caption.set('html', this.data.captions[n]).morph(this.classes.get('captions', 'visible'));
-		      }.pass(this._slide, this);    
+		      var fn1 = empty ? function(){} : function(caption){
+				this.caption.store('timer', setTimeout(function(caption){
+			        this.caption.set('html', caption).morph(this.classes.get('captions', 'visible'));
+				}.pass(caption, this), this.caption.retrieve('delay')));
+		      }.pass(this.data.captions[this._slide], this);    
 		      var fn2 = function(){ 
 		        this.caption.set('aria-busy', false); 
 		      }.bind(this);
