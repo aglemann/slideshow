@@ -84,7 +84,7 @@ Dependencies:
 
 			// styles
 
-			var keys = ['slideshow', 'first', 'prev', 'play', 'pause', 'next', 'last', 'images', 'captions', 'controller', 'thumbnails', 'hidden', 'visible', 'inactive', 'active', 'loader'],
+			var keys = 'slideshow first prev play pause next last images captions controller thumbnails hidden visible inactive active loader'.split(' '),
 				values = keys.map(function(key, i){
 				return this.options.classes[i] || key;
 			}, this);
@@ -368,16 +368,15 @@ Dependencies:
 
 		destroy: function(p){
 			Object.each(this.events, function(array, e){
-				array.each(function(fn){ document.removeEvent(e, fn); });
+				if ('each' in array)
+					array.each(function(fn){ document.removeEvent(e, fn); });
 			});
 			this.pause(1);
-			if (this.options.loader)
-				clearTimeout(this.el.retrieve('loader').retrieve('timer'));		
-			if (this.options.thumbnails)
-				clearTimeout(this.el.retrieve('thumbnails').retrieve('timer'));
-			this.el.uid = Native.UID++;
-			if (p)
-				this.el[p]();
+			'caption loader thumbnails'.split(' ').each(function(i, timer){
+				this.options[i] && (timer = this[i].retrieve('timer')) && clearTimeout(timer);
+			}, this);
+			typeOf(this.el[p]) == 'function' && this.el[p]();
+			delete this.el.uid;
 		},
 
 	/**
@@ -706,7 +705,7 @@ Dependencies:
 
 		keydown: function(e){
 			Object.each(this.accesskeys, function(accesskey, action){
-				if (e.key == accesskey.key && e.shift == accesskey.shift && e.control == accesskey.control && e.alt == accesskey.alt && e.meta == accesskey.meta){
+				if (e.key == accesskey.key && e.shift == accesskey.shift && e.control == accesskey.control && e.alt == accesskey.alt){
 					if (this.controller.get('aria-hidden') == 'true')
 						this.controller.get('morph').set(this.classes.get('controller', 'visible'));
 					this.el.retrieve(action).fireEvent('mouseenter');
@@ -716,7 +715,7 @@ Dependencies:
 
 		keyup: function(e){
 			Object.each(this.accesskeys, function(accesskey, action){
-				if (e.key == accesskey.key && e.shift == accesskey.shift && e.control == accesskey.control && e.alt == accesskey.alt && e.meta == accesskey.meta){
+				if (e.key == accesskey.key && e.shift == accesskey.shift && e.control == accesskey.control && e.alt == accesskey.alt){
 					if (this.controller.get('aria-hidden') == 'true')
 						this.controller.set('aria-hidden', false).fireEvent('hide'); 
 					this.el.retrieve(action).fireEvent('mouseleave');
@@ -879,8 +878,8 @@ Dependencies:
 			var coords = thumbnails.getCoordinates();
 			if (!options.scroll)
 				options.scroll = (coords.height > coords.width) ? 'y' : 'x';
-			var props = (options.scroll == 'y') ? ['top', 'bottom', 'height', 'y', 'width'] 
-				: ['left', 'right', 'width', 'x', 'height'];
+			var props = (options.scroll == 'y') ? 'top bottom height y width'.split(' ') 
+				: 'left right width x height'.split(' ');
 			thumbnails.store('props', props).store('delay', 1000 / this.options.fps);
 			slideshow.events.push('mousemove', this.mousemove.bind(thumbnails));
 			thumbnails.inject(slideshow.el);
