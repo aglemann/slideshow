@@ -11,6 +11,8 @@
 	<script src="src/mootools/mootools-1.3.1-core.js"></script>
 	<script src="src/mootools/mootools-1.3.1.1-more.js"></script>
 	<script src="src/mootools/slideshow.js"></script>
+	<script src="src/mootools/slideshow.flash.js"></script>
+	<script src="src/mootools/slideshow.fold.js"></script>
 	<script src="src/mootools/slideshow.kenburns.js"></script>
 	<script src="src/mootools/slideshow.push.js"></script>
 	<script>
@@ -19,6 +21,8 @@
 
 			new Slideshow('overlap', data, { captions: { delay: 1000 }, delay: 3000, height: 300, hu: 'images/', width: 400 });
 			new Slideshow('noOverlap', data, { height: 300, hu: 'images/', overlap: false, resize: 'fit', width: 400 });
+			new Slideshow.Flash('flash', data, { color: ['tomato', 'palegreen', 'orangered', 'aquamarine'], height: 300, hu: 'images/', width: 400 });
+			new Slideshow.Fold('fold', data, { height: 300, hu: 'images/', width: 400 });
 			new Slideshow.KenBurns('kenburns', data, { duration: 1500, height: 300, hu: 'images/', width: 400 });
 			new Slideshow.Push('push', data, { height: 300, hu: 'images/', transition: 'back:in:out', width: 400 });
 		});
@@ -33,12 +37,20 @@
 		<img src="images/1.jpg" alt="1">
 	</div>
 
+	<div id="flash" class="slideshow">
+		<img src="images/1.jpg" alt="1">
+	</div>
+
+	<div id="fold" class="slideshow">
+		<img src="images/1.jpg" alt="1">
+	</div>
+
 	<div id="kenburns" class="slideshow">
 		<img src="images/1.jpg" alt="1">
 	</div>
 	
 	<div id="push" class="slideshow">
 		<img src="images/1.jpg" alt="1">
-	</div>
+	</div>	
 </body>
 </html>

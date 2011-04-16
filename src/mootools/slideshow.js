@@ -86,8 +86,8 @@ Dependencies:
 
 			var keys = 'slideshow first prev play pause next last images captions controller thumbnails hidden visible inactive active loader'.split(' '),
 				values = keys.map(function(key, i){
-				return this.options.classes[i] || key;
-			}, this);
+					return this.options.classes[i] || key;
+				}, this);
 			this.classes = values.associate(keys);
 			this.classes.get = function(){
 				var str = '.' + this.slideshow;
@@ -471,12 +471,12 @@ Dependencies:
 					this.image.get('morph').set(hidden).start(visible);
 				} 
 				else {
-					var fn = function(hidden, visible){
+					var fn = function(visible){
 						this.image.get('morph').start(visible);
-					}.pass([hidden, visible], this);
-					hidden = this.classes.get('images', (this.direction == 'left' ? 'prev' : 'next'));
+					}.pass(visible, this);
 					if (this.firstrun)
 						return fn();
+					hidden = this.classes.get('images', (this.direction == 'left' ? 'prev' : 'next'));
 					this.image.get('morph').set(hidden);				
 					img.get('morph').set(visible).start(hidden).chain(fn);
 				}
@@ -534,8 +534,7 @@ Dependencies:
 	*/
 
 		_resize: function(img){
-			var size = img.getSize(),
-				h = size.y, w = size.x,
+			var h = img.get('height').toFloat(), w = img.get('width').toFloat(),
 				dh = this.height / h, dw = this.width / w;
 			if (this.options.resize == 'fit')
 				dh = dw = dh > dw ? dw : dh;
