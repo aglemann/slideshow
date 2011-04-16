@@ -38,7 +38,6 @@ Dependencies:
 			options.overlap = true;
 			if (options.color)
 				options.color = Array.from(options.color);
-			console.log(options.color);
 			this.parent(el, data, options);
 		},
 

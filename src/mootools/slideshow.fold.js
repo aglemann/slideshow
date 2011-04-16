@@ -25,9 +25,9 @@ Private method: show
 			var options = (this.options.overlap) ? {'duration': this.options.duration} : {'duration': this.options.duration / 2};
 			$$(this.a, this.b).set('tween', Object.merge(options, {'link': 'chain', 'onStart': this._start.bind(this), 'onComplete': this._complete.bind(this), 'property': 'clip', 'transition': this.options.transition}));
 		}
-		var rect = this._rect(this.image),
-			img = (this.counter % 2) ? this.a : this.b;
-			
+		var img = (this.counter % 2) ? this.a : this.b,
+			rect = this._rect(this.image),
+			half = Math.ceil(rect.top + (rect.bottom - rect.top) / 2);
 			
 		if (fast){			
 			img.get('tween').cancel().set('rect(0, 0, 0, 0)');
@@ -37,15 +37,15 @@ Private method: show
 			if (this.options.overlap){	
 				img.get('tween').set('rect(auto, auto, auto, auto)');
 				this.image.get('tween')
-					.set(rect.top + ' ' + rect.left + ' ' + Math.ceil(rect.bottom / 2) + ' ' + rect.left)
-					.start(rect.top + ' ' + rect.right + ' ' + Math.ceil(rect.bottom / 2) + ' ' + rect.left)
+					.set(rect.top + ' ' + rect.left + ' ' + half + ' ' + rect.left)
+					.start(rect.top + ' ' + rect.right + ' ' + half + ' ' + rect.left)
 					.start(rect.top + ' ' + rect.right + ' ' + rect.bottom + ' ' + rect.left);
 			} 
 			else	{
 				var fn = function(rect){
 					this.image.get('tween')
-						.set(rect.top + ' ' + rect.left + ' ' + Math.ceil(rect.bottom / 2) + ' ' + rect.left)
-						.start(rect.top + ' ' + rect.right + ' ' + Math.ceil(rect.bottom / 2) + ' ' + rect.left)
+						.set(rect.top + ' ' + rect.left + ' ' + half + ' ' + rect.left)
+						.start(rect.top + ' ' + rect.right + ' ' + half + ' ' + rect.left)
 						.start(rect.top + ' ' + rect.right + ' ' + rect.bottom + ' ' + rect.left);
 				}.pass(rect, this);
 				if (this.firstrun)
@@ -53,8 +53,8 @@ Private method: show
 				rect = this._rect(img);
 				img.get('tween')
 					.set(rect.top + ' ' + rect.right + ' ' + rect.bottom + ' ' + rect.left)
-					.start(rect.top + ' ' + rect.right + ' ' + Math.ceil(rect.bottom / 2) + ' ' + rect.left)
-					.start(rect.top + ' ' + rect.left + ' ' + Math.ceil(rect.bottom / 2) + ' ' + rect.left).chain(fn);
+					.start(rect.top + ' ' + rect.right + ' ' + half + ' ' + rect.left)
+					.start(rect.top + ' ' + rect.left + ' ' + half + ' ' + rect.left).chain(fn);
 			}
 		}
 	},
@@ -66,10 +66,10 @@ Private method: show
 
 	_rect: function(img){
 		var rect = img.getCoordinates(this.el.retrieve('images'));
-		rect.right = (rect.right > this.width) ? this.width - rect.left : rect.width;
-		rect.bottom = (rect.bottom > this.height) ? this.height - rect.top : rect.height;
-		rect.top = (rect.top < 0) ? Math.abs(rect.top) : 0;
 		rect.left = (rect.left < 0) ? Math.abs(rect.left) : 0;
+		rect.top = (rect.top < 0) ? Math.abs(rect.top) : 0;
+		rect.right = (rect.right > this.width) ? rect.left + this.width : rect.width;
+		rect.bottom = (rect.bottom > this.height) ? rect.top + this.height : rect.height;
 		return rect;		
 	}
 });
