@@ -389,9 +389,14 @@ Dependencies:
 				cached = loaded = !!this.cache[src];
 			if (!cached){
 				if (!this.preloader)
-				 	this.preloader = new Asset.image(src, {'onload': function(){
-						this.store('loaded', true);
-					}});
+				 	this.preloader = new Asset.image(src, {
+						'onerror': function(){
+							// do something
+						},
+						'onload': function(){
+							this.store('loaded', true);
+						}
+					});
 				loaded = this.preloader.retrieve('loaded') && this.preloader.get('width');
 			}
 			if (loaded && Date.now() > this.delay && Date.now() > this.duration){
@@ -413,8 +418,10 @@ Dependencies:
 					return;				
 				}
 				this.image = this.counter % 2 ? this.b : this.a;
-				this.image.set('styles', {'display': 'block', 'height': 'auto', 'visibility': 'hidden', 'width': 'auto', 'zIndex': this.counter});
+				this.image.set('styles', {'display': 'block', 'height': null, 'visibility': 'hidden', 'width': null, 'zIndex': this.counter});
 				this.image.set(this.cache[src]);
+				this.image.width = this.cache[src].width;
+				this.image.height = this.cache[src].height;
 				if (this.options.resize)
 					this._resize(this.image);
 				if (this.options.center)
