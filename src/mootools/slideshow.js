@@ -176,7 +176,7 @@ Dependencies:
 
 			// begin show
 
-			this._preload();
+			this._preload(this.options.fast == 3);
 		},
 
 	/**
@@ -199,7 +199,7 @@ Dependencies:
 			this.slide = this._slide = n;
 			if (this.preloader) 
 				this.preloader = this.preloader.destroy();
-			this._preload(this.options.fast == 2 || (this.options.fast == 1 && this.paused));
+			this._preload(this.options.fast && (this.options.fast > 1 || this.paused));
 		},
 
 	/**
@@ -499,7 +499,7 @@ Dependencies:
 			this.counter++;
 			this.delay = Date.now() + this.options.duration + this.options.delay;
 			this.direction = 'left';
-			this.duration = this.options.fast == 2 || (this.options.fast == 1 && this.paused) ? 0 : Date.now() + this.options.duration;			
+			this.duration = this.options.fast && (this.options.fast > 1 || this.paused) ? 0 : Date.now() + this.options.duration;			
 			if (this._slide == (this.data.images.length - 1) && !this.options.loop && !this.options.random)
 				this.stopped = this.end = true;
 			if (this.options.random){
