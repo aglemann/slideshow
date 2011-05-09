@@ -14,7 +14,7 @@ Dependencies:
 */
 (function(){
 	WhenPaused = 1 << 0;
-	OnUserControl = 1 << 1;
+	WhenPlaying = 1 << 1;
 	OnStart = 1 << 2;
 	
 	Slideshow = new Class({
@@ -85,7 +85,7 @@ Dependencies:
 			if (this.options.hu.length && !this.options.hu.test(/\/$/)) 
 				this.options.hu += '/';
 			if (this.options.fast === true)
-				this.options.fast = WhenPaused | OnUserControl;
+				this.options.fast = WhenPaused | WhenPlaying;
 
 			// styles
 
@@ -205,7 +205,7 @@ Dependencies:
 			this.slide = this._slide = n;
 			if (this.preloader) 
 				this.preloader = this.preloader.destroy();
-			this._preload((this.options.fast & OnUserControl) || (this.paused && this.options.fast & WhenPaused));
+			this._preload((this.options.fast & WhenPlaying) || (this.paused && this.options.fast & WhenPaused));
 		},
 
 	/**
