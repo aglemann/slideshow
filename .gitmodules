@@ -4,3 +4,6 @@
 [submodule "src/jquery/jquery-ui"]
 	path = src/jquery/jquery-ui
 	url = https://github.com/jquery/jquery-ui.git
+[submodule "spec/qunit"]
+	path = spec/qunit
+	url = https://github.com/jquery/qunit.git

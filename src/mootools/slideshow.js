@@ -13,6 +13,10 @@ Dependencies:
 	Mootools 1.3.1.1 More: Assets.
 */
 (function(){
+	WhenPaused = 1 << 0;
+	OnUserControl = 1 << 1;
+	OnStart = 1 << 2;
+	
 	Slideshow = new Class({
 		Implements: [Chain, Events, Options],
 
@@ -23,7 +27,7 @@ Dependencies:
 		    accesskeys: {'first': {'key': 'shift left', 'label': 'Shift + Leftwards Arrow'}, 'prev': {'key': 'left', 'label': 'Leftwards Arrow'}, 'pause': {'key': 'p', 'label': 'P'}, 'next': {'key': 'right', 'label': 'Rightwards Arrow'}, 'last': {'key': 'shift right', 'label': 'Shift + Rightwards Arrow'}},
 			captions: true,
 			center: true,
-			classes: [],
+			classes: [/*'slideshow', 'first', 'prev', 'play', 'pause', 'next', 'last', 'images', 'captions', 'controller', 'thumbnails', 'hidden', 'visible', 'inactive', 'active', 'loader'*/],
 			controller: true,
 			data: null,
 			delay: 2000,
@@ -67,8 +71,9 @@ Dependencies:
 			if (!this.el) 
 				return;
 			var match = window.location.href.match(this.options.match);
-			this.slide = this._slide = this.options.match && match ? match[1].toInt() : this.options.slide;
-			this.counter = this.delay = this.duration = 0;
+			this.slide = this._slide = this.options.match && match ? match[1].toInt() 
+				: this.options.slide;
+			this.counter = this.timeToNextTransition = this.timeToTransitionComplete = 0;
 			this.direction = 'left';
 			this.cache = {};
 			this.paused = false;
@@ -80,7 +85,7 @@ Dependencies:
 			if (this.options.hu.length && !this.options.hu.test(/\/$/)) 
 				this.options.hu += '/';
 			if (this.options.fast === true)
-				this.options.fast = 2;
+				this.options.fast = WhenPaused | OnUserControl;
 
 			// styles
 
@@ -106,7 +111,8 @@ Dependencies:
 					var src = img.src,
 						caption = img.alt || img.title,
 						href = img.getParent().href,
-						thumbnail = thumbnails[i] ? thumbnails[i].src : '';
+						thumbnail = thumbnails[i] ? thumbnails[i].src 
+							: '';
 					data[src] = {'caption': caption, 'href': href, 'thumbnail': thumbnail};
 				});
 			}
@@ -148,7 +154,8 @@ Dependencies:
 
 			var el = this.el.getElement(this.classes.get('images')),
 				img = this.el.getElement('img') || new Element('img'),
-				images = el ? el.empty() : new Element('div', {'class': this.classes.get('images').substr(1)}).inject(this.el),
+				images = el ? el.empty() 
+					: new Element('div', {'class': this.classes.get('images').substr(1)}).inject(this.el),
 				div = images.getSize();
 			this.height = this.options.height || div.y;		
 			this.width = this.options.width || div.x;
@@ -165,18 +172,14 @@ Dependencies:
 
 			// optional elements
 
-			if (this.options.captions)
-	 			new Caption(this);
-			if (this.options.controller)
-				new Controller(this);
-			if (this.options.loader)
-	 			new Loader(this);
-			if (this.options.thumbnails)
-				new Thumbnails(this);
+			this.options.captions && new Caption(this);
+			this.options.controller && new Controller(this);
+			this.options.loader && new Loader(this);
+			this.options.thumbnails && new Thumbnails(this);
 
 			// begin show
 
-			this._preload(this.options.fast == 3);
+			this._preload(this.options.fast & OnStart);
 		},
 
 	/**
@@ -191,15 +194,18 @@ Dependencies:
 	*/
 
 		go: function(n, direction){
-			if ((this.slide + this.data.images.length) % this.data.images.length == n || Date.now() < this.duration)
+			var nextSlide = (this.slide + this.data.images.length) % this.data.images.length;
+			if (n == nextSlide || Date.now() < this.timeToTransitionComplete)
 				return;		
 			clearTimeout(this.timer);
-			this.delay = 0;		
-			this.direction = direction ? direction : (n < this._slide ? 'right' : 'left');
+			this.timeToNextTransition = 0;		
+			this.direction = direction ? direction 
+				: n < this._slide ? 'right' 
+				: 'left';
 			this.slide = this._slide = n;
 			if (this.preloader) 
 				this.preloader = this.preloader.destroy();
-			this._preload(this.options.fast && (this.options.fast > 1 || this.paused));
+			this._preload((this.options.fast & OnUserControl) || (this.paused && this.options.fast & WhenPaused));
 		},
 
 	/**
@@ -250,30 +256,29 @@ Dependencies:
 
 		pause: function(p){
 			if (p != undefined)
-				this.paused = p ? false : true;
-			if (this.paused){
+				this.paused = p ? false 
+					: true;
+			if (this.paused){ // play
 				this.paused = false;
-				this.duration = Date.now() + this.duration;		
-				this.timer = this._preload.delay(100, this);
+				this.timeToTransitionComplete = Date.now() + this.timeToTransitionComplete;		
+				this.timer = this._preload.delay(50, this);
 				[this.a, this.b].each(function(img){
 					['morph', 'tween'].each(function(p){
 						if (this.retrieve(p)) this.get(p).resume();
 					}, img);
 				});
-				if (this.controller)
-					this.el.retrieve('pause').getParent().removeClass(this.classes.play);
+				this.controller && this.el.retrieve('pause').getParent().removeClass(this.classes.play);
 			} 
-			else {
+			else { // pause
 				this.paused = true;
-				this.duration = this.duration - Date.now();
+				this.timeToTransitionComplete = this.timeToTransitionComplete - Date.now();
 				clearTimeout(this.timer);
 				[this.a, this.b].each(function(img){
 					['morph', 'tween'].each(function(p){
 						if (this.retrieve(p)) this.get(p).pause();
 					}, img);
 				});
-				if (this.controller)
-					this.el.retrieve('pause').getParent().addClass(this.classes.play);
+				this.controller && this.el.retrieve('pause').getParent().addClass(this.classes.play);
 			}
 		},
 
@@ -286,7 +291,8 @@ Dependencies:
 	*/
 
 		next: function(last){
-			var n = last ? this.data.images.length - 1 : this._slide;
+			var n = last ? this.data.images.length - 1 
+				: this._slide;
 			this.go(n, 'left');
 		},
 
@@ -324,10 +330,15 @@ Dependencies:
 			for (var image in data){
 				var obj = data[image] || {},
 					image = this.options.hu + image,
-					caption = obj.caption ? obj.caption.trim() : '',
-					href = obj.href ? obj.href.trim() : (this.options.linked ? image : this.options.href),
-					target = obj.target ? obj.target.trim() : '_self',
-					thumbnail = obj.thumbnail ? this.options.hu + obj.thumbnail.trim() : image.replace(this.options.replace[0], this.options.replace[1]),
+					caption = obj.caption ? obj.caption.trim() 
+						: '',
+					href = obj.href ? obj.href.trim() 
+						: this.options.linked ? image 
+						: this.options.href,
+					target = obj.target ? obj.target.trim() 
+						: '_self',
+					thumbnail = obj.thumbnail ? this.options.hu + obj.thumbnail.trim() 
+						: image.replace(this.options.replace[0], this.options.replace[1]),
 					title = caption.replace(/<.+?>/gm, '').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, "'");
 				this.data.images.push(image);
 				this.data.captions.push(caption);
@@ -349,7 +360,7 @@ Dependencies:
 						if (this.retrieve(p)) this.get(p).cancel();
 					}, img);
 				});
-				this.slide = this._slide = this.duration = 0;
+				this.slide = this._slide = this.timeToTransitionComplete = 0;
 				this.go(0);		
 			}
 			return this.data.images.length;
@@ -399,7 +410,7 @@ Dependencies:
 					});
 				loaded = this.preloader.retrieve('loaded') && this.preloader.get('width');
 			}
-			if (loaded && Date.now() > this.delay && Date.now() > this.duration){
+			if (loaded && Date.now() > this.timeToNextTransition && Date.now() > this.timeToTransitionComplete){
 				var src = this.data.images[this._slide].replace(/([^?]+).*/, '$1');
 				if (this.preloader){
 					this.cache[src] = {
@@ -417,15 +428,14 @@ Dependencies:
 					this.stopped = this.end = false;
 					return;				
 				}
-				this.image = this.counter % 2 ? this.b : this.a;
+				this.image = this.counter % 2 ? this.b 
+					: this.a;
 				this.image.set('styles', {'display': 'block', 'height': null, 'visibility': 'hidden', 'width': null, 'zIndex': this.counter});
 				this.image.set(this.cache[src]);
 				this.image.width = this.cache[src].width;
 				this.image.height = this.cache[src].height;
-				if (this.options.resize)
-					this._resize(this.image);
-				if (this.options.center)
-					this._center(this.image);
+				this.options.resize && this._resize(this.image);
+				this.options.center && this._center(this.image);
 				var anchor = this.image.getParent();
 				if (this.data.hrefs[this._slide]){
 					anchor.set('href', this.data.hrefs[this._slide]);
@@ -437,19 +447,15 @@ Dependencies:
 				}
 				var title = this.data.titles[this._slide];
 				this.image.set('alt', title);		
-				if (this.options.titles)
-					anchor.set('title', title);
-				if (this.options.loader)
-					this.loader.fireEvent('hide');
-				if (this.options.captions)
-					this.caption.fireEvent('update', fast);				
-				if (this.options.thumbnails)
-					this.thumbnails.fireEvent('update', fast); 			
+				this.options.titles && anchor.set('title', title);
+				this.options.loader && this.loader.fireEvent('hide');
+				this.options.captions && this.caption.fireEvent('update', fast);				
+				this.options.thumbnails && this.thumbnails.fireEvent('update', fast); 			
 				this._show(fast);
-				this._loaded();
+				this._loaded(fast);
 			} 
 			else {
-				if (Date.now() > this.delay && this.options.loader)
+				if (Date.now() > this.timeToNextTransition && this.options.loader)
 					this.loader.fireEvent('show');
 				this.timer = this._preload.delay(50, this, fast); 
 			}
@@ -462,12 +468,14 @@ Dependencies:
 
 		_show: function(fast){
 			if (!this.image.retrieve('morph')){
-				var options = this.options.overlap ? {'duration': this.options.duration, 'link': 'cancel'} : {'duration': this.options.duration / 2, 'link': 'chain'};
-				$$(this.a, this.b).set('morph', Object.merge(options, {'onStart': this._start.bind(this), 'onComplete': this._complete.bind(this), 'transition': this.options.transition}));
+				var options =  this.options.overlap ? {'link': 'cancel'} : {'link': 'chain'};
+				$$(this.a, this.b).set('morph', Object.merge(options, {'duration': this.options.duration, 'onStart': this._start.bind(this), 'onComplete': this._complete.bind(this), 'transition': this.options.transition}));
 			}
-			var hidden = this.classes.get('images', (this.direction == 'left' ? 'next' : 'prev')),
+			var hidden = this.classes.get('images', (this.direction == 'left' ? 'next' 
+				: 'prev')),
 				visible = this.classes.get('images', 'visible'),
-				img = this.counter % 2 ? this.a : this.b;
+				img = this.counter % 2 ? this.a 
+					: this.b;
 			if (fast){			
 				img.get('morph').cancel().set(hidden);
 				this.image.get('morph').cancel().set(visible); 			
@@ -483,7 +491,8 @@ Dependencies:
 					}.pass(visible, this);
 					if (this.firstrun)
 						return fn();
-					hidden = this.classes.get('images', (this.direction == 'left' ? 'prev' : 'next'));
+					hidden = this.classes.get('images', (this.direction == 'left' ? 'prev' 
+						: 'next'));
 					this.image.get('morph').set(hidden);				
 					img.get('morph').set(visible).start(hidden).chain(fn);
 				}
@@ -495,11 +504,12 @@ Dependencies:
 		Run after the current image has been loaded, sets up the next image to be shown.
 	*/
 
-		_loaded: function(){
+		_loaded: function(fast){
 			this.counter++;
-			this.delay = Date.now() + this.options.duration + this.options.delay;
-			this.direction = 'left';
-			this.duration = this.options.fast && (this.options.fast > 1 || this.paused) ? 0 : Date.now() + this.options.duration;			
+			this.timeToNextTransition = Date.now() + this.options.duration + this.options.delay;
+			this.direction = 'left';			
+			this.timeToTransitionComplete = fast ? 0 
+				: Date.now() + this.options.duration;
 			if (this._slide == (this.data.images.length - 1) && !this.options.loop && !this.options.random)
 				this.stopped = this.end = true;
 			if (this.options.random){
@@ -521,7 +531,7 @@ Dependencies:
 				(function(){ this.image.setStyle('visibility', 'visible'); }).delay(1, this);			
 			if (this.preloader) 
 				this.preloader = this.preloader.destroy();
-			this._preload();
+			this.paused || this._preload();
 		},
 
 	/**
@@ -544,9 +554,11 @@ Dependencies:
 			var h = img.get('height').toFloat(), w = img.get('width').toFloat(),
 				dh = this.height / h, dw = this.width / w;
 			if (this.options.resize == 'fit')
-				dh = dw = dh > dw ? dw : dh;
+				dh = dw = dh > dw ? dw 
+					: dh;
 			if (this.options.resize == 'fill')
-				dh = dw = dh > dw ? dh : dw;
+				dh = dw = dh > dw ? dh 
+					: dw;
 			img.set('styles', {'height': Math.ceil(h * dh), 'width': Math.ceil(w * dw)});
 		},
 
@@ -565,9 +577,8 @@ Dependencies:
 	*/
 
 		_complete: function(){
-			if ((this.firstrun && this.options.paused) || this.paused){
+			if (this.firstrun && this.options.paused)
 				this.pause(1);
-			}
 			this.firstrun = false;
 			this.fireEvent('complete');
 		}	
@@ -620,11 +631,13 @@ Dependencies:
 			if (timer = this.caption.retrieve('timer'))
 				clearTimeout(timer);
 		    if (fast){
-		      var p = empty ? 'hidden' : 'visible';
+		      var p = empty ? 'hidden' 
+				: 'visible';
 		      this.caption.set({'aria-hidden': empty, 'html': this.data.captions[this._slide]}).get('morph').cancel().set(this.classes.get('captions', p));
 		    }
 		    else {
-		      var fn1 = empty ? function(){} : function(caption){
+		      var fn1 = empty ? function(){} 
+				: function(caption){
 				this.caption.store('timer', setTimeout(function(caption){
 			        this.caption.set('html', caption).morph(this.classes.get('captions', 'visible'));
 				}.pass(caption, this), this.caption.retrieve('delay')));
@@ -673,7 +686,8 @@ Dependencies:
 				i = 0;
 			Object.each(slideshow.accesskeys, function(accesskey, action){
 				var li = new Element('li', {
-					'class': (action == 'pause' && this.options.paused) ? this.classes.play + ' ' + this.classes[action] : this.classes[action]
+					'class': (action == 'pause' && this.options.paused) ? this.classes.play + ' ' + this.classes[action] 
+						: this.classes[action]
 				}).inject(ul);
 				var a = this.el.retrieve(action, new Element('a', {
 					'role': 'menuitem', 'tabindex': i++, 'title': accesskey.label
@@ -731,7 +745,8 @@ Dependencies:
 
 		mousemove: function(e){
 			var images = this.el.retrieve('images').getCoordinates(),
-				action = (e.page.x > images.left && e.page.x < images.right && e.page.y > images.top && e.page.y < images.bottom) ? 'show' : 'hide';
+				action = (e.page.x > images.left && e.page.x < images.right && e.page.y > images.top && e.page.y < images.bottom) ? 'show' 
+					: 'hide';
 			this.controller.fireEvent(action);
 		},
 
@@ -883,7 +898,8 @@ Dependencies:
 			});
 			var coords = thumbnails.getCoordinates();
 			if (!options.scroll)
-				options.scroll = (coords.height > coords.width) ? 'y' : 'x';
+				options.scroll = (coords.height > coords.width) ? 'y' 
+					: 'x';
 			var props = (options.scroll == 'y') ? 'top bottom height y width'.split(' ') 
 				: 'left right width x height'.split(' ');
 			thumbnails.store('props', props).store('delay', 1000 / this.options.fps);
@@ -918,7 +934,8 @@ Dependencies:
 				a = thumbnails.getElements('a')[i];
 			if (a){
 				(function(a){
-					var visible = i == this.slide ? 'active' : 'inactive';					
+					var visible = i == this.slide ? 'active' 
+						: 'inactive';					
 					a.store('loaded', true).get('morph').set(this.classes.get('thumbnails', 'hidden')).start(this.classes.get('thumbnails', visible));	
 				}).delay(Math.max(1000 / this.data.thumbnails.length, 100), this, a);
 			}					
@@ -964,10 +981,7 @@ Dependencies:
 					li = document.id(uid + n).getCoordinates();
 				delta = div[pos] + (div[size] / 2) - (li[size] / 2) - li[pos];
 				value = (ul[axis] - div[pos] + delta).limit(this.retrieve('limit'), 0);
-				if (fast)	
-					tween.set(value);
-				else						 
-					tween.start(value);
+				tween[fast ? 'set' : 'start'](value);
 			}
 			else{
 				var area = div[props[2]] / 3, 

@@ -8,8 +8,8 @@
 	<style>
 		.slideshow { float: left; margin: 50px; }
 	</style>
-	<script src="src/mootools/mootools-1.3.1-core.js"></script>
-	<script src="src/mootools/mootools-1.3.1.1-more.js"></script>
+	<script src="src/mootools/mootools-1.3.2-core.js"></script>
+	<script src="src/mootools/mootools-1.3.2.1-more.js"></script>
 	<script src="src/mootools/slideshow.js"></script>
 	<script src="src/mootools/slideshow.flash.js"></script>
 	<script src="src/mootools/slideshow.fold.js"></script>
@@ -19,7 +19,7 @@
 		window.addEvent('domready', function(){
 			var data = { '1.jpg': { caption: '1' }, '2.jpg': { caption: '2' }, '3.jpg': { caption: '3' }, '4.jpg': { caption: '4' }};
 
-			new Slideshow('overlap', data, { captions: { delay: 1000 }, delay: 3000, height: 300, hu: 'images/', width: 400 });
+			new Slideshow('overlap', data, { captions: { delay: 1000 }, delay: 3000, fast: WhenPaused, height: 300, hu: 'images/', width: 400 });
 			new Slideshow('noOverlap', data, { height: 300, hu: 'images/', overlap: false, resize: 'fit', width: 400 });
 			new Slideshow.Flash('flash', data, { color: ['tomato', 'palegreen', 'orangered', 'aquamarine'], height: 300, hu: 'images/', width: 400 });
 			new Slideshow.Fold('fold', data, { height: 300, hu: 'images/', width: 400 });
