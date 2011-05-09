@@ -1,0 +1,10 @@
+/*
+Stylesheet: IE6.css.
+License: Creative Commons license.
+Copyright: Copyright (c) 2008 [Aeron Glemann](http://www.electricprism.com/aeron/).
+*/
+
+.slideshow-thumbnails .overlay,
+.slideshow-vertical-thumbnails .overlay {
+	display: none;
+}

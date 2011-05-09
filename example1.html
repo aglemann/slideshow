@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+	
+<!--
+ ^8g0$$@@(    <8gB$@@0    3g0B$@@@^  /80B$$@g`^%%%%%%X  ^@@@$3g@3 ^8g0$$@@(    <80B$@@0  /XC33%%`  <8g0$$@$<(@@$B08X  ~%%%%%%%< C@@@@@@@/ (%%%%%%%^
+ :@@@@@@@^    /@@@@@@0    $@@@@@@@^  3@@@@@@X <@@@@@@8  ^@@@C  ^` :@@@@@@@^    V@@@@@@0 `@@@@@@@^  /@@@@@@8 (@@@@@@G  /@@@@@@@V C@@@@@@@/ 3@@@@@@@:
+ <@@@@@@@@V`  /@@@@@@0    $@@@@@@@^  3@@@@@@X <@@@@@@8  ^@@@@gg3< <@@@@@@@@V`  V@@@@@@$<X@@@@@@@^  /@@@@@@8 (@@@@@@G  /@@@@@@@V C@@@@@@@/ 3@@@@@@@:
+  `3@@@@@@@/  /@@@@@@0    $@@@@@@@^  3@@@@@@X <@@@@@@8  ^@@@@@B    `3@@@@@@@/  V@@@@@@0 `@@@@@@@^  /@@@@@@8 (@@@@@@G  /@@@@@@@V C@@@@@@@/ 3@@@@@@@:
+    ~$@@@@@/  /@@@@@@0    $@@@@@@@^  3@@@@@@X <@@@@@@8  `@@@@@B      ~$@@@@@/  V@@@@@@0 `@@@@@@@^  /@@@@@@8 (@@@@@@G  /@@@@@@@V C@@@@@@@/ 3@@@@@@@:
+     `0@@@@/  /@@@@@@0    $@@@@@@@^  3@@@@@@X <@@@@@@8  `@@@@@B       `0@@@@/  V@@@@@@0 `@@@@@@@^  /@@@@@@8 (@@@@@@G  /@@@@@@@V C@@@@@@@/ 3@@@@@@@:
+      .@@@@/  /@@@@@@0    $@@@@@@@^  3@@@@@@C`V@@@@@@8  `@@@@@B        .@@@@/  V@@@@@@0 `@@@@@@@^  /@@@@@@8 (@@@@@@G  /@@@@@@@V C@@@@@@@/ 3@@@@@@@:
+      <@@@@/  <8888888<   %8888888`  <C%%G88C^````````   C%%G88/^      <@@@@/   ```````  888G%3C   ^V3%%G88(388G%3C(  ^3%G88883/%88888883/%8888G%3^
+   ^/G@@@@$(                                                        ^/G@@@@$(
+
+ License:
+   Creative Commons (http://creativecommons.org/licenses/by/3.0/).
+
+Copyright:
+  Copyright (c) 2008 [Aeron Glemann](http://www.electricprism.com/aeron/).
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Slideshow 2! Example 1: Basic fading show</title>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<meta name="author" content="Aeron Glemann (http://www.electricprism.com/aeron/)" />
+	<meta name="copyright" content="Copyright (c) 2008 Aeron Glemann (http://www.electricprism.com/aeron/), Creative Commons License (http://creativecommons.org/licenses/by/3.0/)" />
+	<meta name="description" content="Slideshow 2! A javascript class for Mootools 1.2 to stream and animate the presentation of images on your website. This page features an example of a basic fading show." />
+	<link rel="stylesheet" type="text/css" href="css/slideshow.css" media="screen" />
+	<style type="text/css">
+    a { color: #404040; }
+    a:hover { text-decoration: none; }
+    code { color: #404040; font: normal 10px Monaco, monospace; }
+    em { color: #808080; font-style: normal; }
+    h1 { color: #000; font: normal 12px/16px Arial, sans-serif; padding: 0 20px 16px; text-transform: lowercase; }
+    h1:before { content: '.'; }
+    p { color: #404040; font: normal 12px/16px Arial, sans-serif; padding: 0 20px 16px; }
+	</style>
+	<script type="text/javascript" src="js/mootools.js"></script>
+	<script type="text/javascript" src="js/slideshow.js"></script>
+	<script type="text/javascript">		
+	//<![CDATA[
+	  window.addEvent('domready', function(){
+	    var data = {
+	      '1.jpg': { caption: 'Volcano Asención in Ometepe, Nicaragua.' }, 
+	      '2.jpg': { caption: 'A Ceibu tree.' }, 
+	      '3.jpg': { caption: 'The view from Volcano Maderas.' }, 
+	      '4.jpg': { caption: 'Beer and ice cream.' }
+	    };
+	    var myShow = new Slideshow('show', data, { captions: true, controller: true, height: 300, hu: 'examples/', width: 400 });
+	  });
+	//]]>
+	</script>
+</head>
+<body>
+  <h1>Example 1: Basic fading show</h1>
+  
+  <p>An example of basic <a href="index.html" title="Slideshow 2! A javascript class for Mootools 1.2 to stream and animate the presentation of images on your website">Slideshow</a> usage. This pages uses nothing more than the <code>slideshow.js</code> base class and <code>slideshow.css</code> stylesheet that are included in the <a href="http://code.google.com/p/slideshow" title="Slideshow open-source project">download</a>. To customize the slide transitions (for example to create <em>wiping</em> effects) you will want to edit the <code>.slideshow-images-visible</code>, <code>.slideshow-images-prev</code> and <code>.slideshow-images-next</code> classes in the <a href="css/slideshow.css" title="Slideshow stylesheet">stylesheet</a>. See the <a href="example2.html" title="Example 2: Integration with Lightbox">next example...</a></p>
+  
+  <div id="show" class="slideshow">
+    <img src="examples/1.jpg" width="400" height="300" alt="Slideshow 2! Example 1: Basic fading show" />
+  </div>
+  
+  <!-- Google Analytics -->
+  
+  <script type="text/javascript">
+	//<![CDATA[
+	  if (window.location.href.contains("electricprism.com")){
+      var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www."); document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));	    
+	  }
+  //]]>
+  </script>
+  <script type="text/javascript">
+	//<![CDATA[
+    if (window.location.href.contains("electricprism.com")){
+      var pageTracker = _gat._getTracker("UA-305279-3"); pageTracker._initData(); pageTracker._trackPageview();
+    }
+  //]]>
+  </script>
+</body>
+</html>

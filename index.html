@@ -1,56 +1,308 @@
-<!doctype html>	
+<!DOCTYPE html>
+	
+<!--
+ ^8g0$$@@(    <8gB$@@0    3g0B$@@@^  /80B$$@g`^%%%%%%X  ^@@@$3g@3 ^8g0$$@@(    <80B$@@0  /XC33%%`  <8g0$$@$<(@@$B08X  ~%%%%%%%< C@@@@@@@/ (%%%%%%%^
+ :@@@@@@@^    /@@@@@@0    $@@@@@@@^  3@@@@@@X <@@@@@@8  ^@@@C  ^` :@@@@@@@^    V@@@@@@0 `@@@@@@@^  /@@@@@@8 (@@@@@@G  /@@@@@@@V C@@@@@@@/ 3@@@@@@@:
+ <@@@@@@@@V`  /@@@@@@0    $@@@@@@@^  3@@@@@@X <@@@@@@8  ^@@@@gg3< <@@@@@@@@V`  V@@@@@@$<X@@@@@@@^  /@@@@@@8 (@@@@@@G  /@@@@@@@V C@@@@@@@/ 3@@@@@@@:
+  `3@@@@@@@/  /@@@@@@0    $@@@@@@@^  3@@@@@@X <@@@@@@8  ^@@@@@B    `3@@@@@@@/  V@@@@@@0 `@@@@@@@^  /@@@@@@8 (@@@@@@G  /@@@@@@@V C@@@@@@@/ 3@@@@@@@:
+    ~$@@@@@/  /@@@@@@0    $@@@@@@@^  3@@@@@@X <@@@@@@8  `@@@@@B      ~$@@@@@/  V@@@@@@0 `@@@@@@@^  /@@@@@@8 (@@@@@@G  /@@@@@@@V C@@@@@@@/ 3@@@@@@@:
+     `0@@@@/  /@@@@@@0    $@@@@@@@^  3@@@@@@X <@@@@@@8  `@@@@@B       `0@@@@/  V@@@@@@0 `@@@@@@@^  /@@@@@@8 (@@@@@@G  /@@@@@@@V C@@@@@@@/ 3@@@@@@@:
+      .@@@@/  /@@@@@@0    $@@@@@@@^  3@@@@@@C`V@@@@@@8  `@@@@@B        .@@@@/  V@@@@@@0 `@@@@@@@^  /@@@@@@8 (@@@@@@G  /@@@@@@@V C@@@@@@@/ 3@@@@@@@:
+      <@@@@/  <8888888<   %8888888`  <C%%G88C^````````   C%%G88/^      <@@@@/   ```````  888G%3C   ^V3%%G88(388G%3C(  ^3%G88883/%88888883/%8888G%3^
+   ^/G@@@@$(                                                        ^/G@@@@$(
+
+License:
+  Creative Commons (http://creativecommons.org/licenses/by/3.0/).
+
+Copyright:
+  Copyright (c) 2008 [Aeron Glemann](http://www.electricprism.com/aeron/).
+-->
+
 <html>
 <head>
-	<title>Slideshow 2!</title>
-	<meta charset="utf-8">
-	<meta name="author" content="[Aeron Glemann](http://www.electricprism.com/aeron/)">
-	<link rel="stylesheet" href="css/slideshow.css">
-	<style>
-		.slideshow { float: left; margin: 50px; }
-	</style>
-	<script src="src/mootools/mootools-1.3.2-core.js"></script>
-	<script src="src/mootools/mootools-1.3.2.1-more.js"></script>
-	<script src="src/mootools/slideshow.js"></script>
-	<script src="src/mootools/slideshow.flash.js"></script>
-	<script src="src/mootools/slideshow.fold.js"></script>
-	<script src="src/mootools/slideshow.kenburns.js"></script>
-	<script src="src/mootools/slideshow.push.js"></script>
-	<script>
-		window.addEvent('domready', function(){
-			var data = { '1.jpg': { caption: '1' }, '2.jpg': { caption: '2' }, '3.jpg': { caption: '3' }, '4.jpg': { caption: '4' }};
-
-			new Slideshow('overlap', data, { captions: { delay: 1000 }, delay: 3000, fast: WhenPaused, height: 300, hu: 'images/', width: 400 });
-			new Slideshow('noOverlap', data, { height: 300, hu: 'images/', overlap: false, resize: 'fit', width: 400 });
-			new Slideshow.Flash('flash', data, { color: ['tomato', 'palegreen', 'orangered', 'aquamarine'], height: 300, hu: 'images/', width: 400 });
-			new Slideshow.Fold('fold', data, { height: 300, hu: 'images/', width: 400 });
-			new Slideshow.KenBurns('kenburns', data, { duration: 1500, height: 300, hu: 'images/', width: 400 });
-			new Slideshow.Push('push', data, { height: 300, hu: 'images/', transition: 'back:in:out', width: 400 });
-		});
+	<title>Slideshow 2! A javascript class for Mootools 1.2 to stream and animate the presentation of images on your website</title>
+	<meta http-equiv="imagetoolbar" content="false" />
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<meta name="author" content="Aeron Glemann (http://www.electricprism.com/aeron/)" />
+	<meta name="copyright" content="Copyright (c) 2008 Aeron Glemann (http://www.electricprism.com/aeron/), Creative Commons License (http://creativecommons.org/licenses/by/3.0/)" />
+	<meta name="description" content="Slideshow 2! A javascript class for Mootools 1.2 to stream and animate the presentation of images on your website. This page features some demos of how Slideshow might be used to enhance the presentation of images on your website." />
+	<meta name="keywords" content="Slideshow, Slideshow demos, Slideshow examples, Mootools, Ken Burns, slideshow.js, slideshow.kenburns.js, slideshow.flash.js, slideshow.fold.js, slideshow.push.js" />
+	<link rel="stylesheet" type="text/css" href="https://github.com/aglemann/slideshow/raw/1.3.2/css/slideshow.css" media="screen" />
+	<link rel="stylesheet" type="text/css" href="css/demo.css" media="screen" />
+	<link rel="stylesheet" type="text/css" href="css/lightbox.css" media="screen" />
+	<!--[if IE 6]><link rel="stylesheet" type="text/css" href="css/ie6.css" media="screen" /><![endif]-->
+	<script type="text/javascript" src="https://github.com/aglemann/slideshow/raw/1.3.2/src/mootools/mootools-1.3.2-core.js"></script>
+	<script type="text/javascript" src="https://github.com/aglemann/slideshow/raw/1.3.2/src/mootools/mootools-1.3.2.1-more.js"></script>
+	<!-- // <script type="text/javascript" src="js/lightbox.js"></script> -->
+	<script type="text/javascript" src="js/demo.js"></script>
+	<script type="text/javascript" src="https://github.com/aglemann/slideshow/raw/1.3.2/src/mootools/slideshow.js"></script>
+	<script type="text/javascript" src="https://github.com/aglemann/slideshow/raw/1.3.2/src/mootools/slideshow.flash.js"></script>
+	<script type="text/javascript" src="https://github.com/aglemann/slideshow/raw/1.3.2/src/mootools/slideshow.fold.js"></script>
+	<script type="text/javascript" src="https://github.com/aglemann/slideshow/raw/1.3.2/src/mootools/slideshow.kenburns.js"></script>
+	<script type="text/javascript" src="https://github.com/aglemann/slideshow/raw/1.3.2/src/mootools/slideshow.push.js"></script>
+	<script type="text/javascript">		
+    var demo = new Class({
+      initialize: function(){
+        this.el = $('show');
+        // We attach our event listener to each of the demos.
+           $$('#demos li').each(function(li, i){
+             li.set('events', {'click': this.start.pass(i + 1, this)});
+           }, this)
+           // Start our default demo.
+        this.start();
+      },
+      
+      start: function(p){
+            var data = {};
+            // If there is an existing Slideshow instance we will want to destroy it completely.
+            // Usually we can use the "load" method to simply load in new data.
+            // However the demos here  require a complete new, customized Slideshow instance which is why we will have to opt for the "destroy".
+            if (this.show)
+              this.show.destroy('empty');
+             switch(p){
+          case 1: // CSS-based transitions: Infinite effects.
+            [
+              'CSS-based transitions: Infinite effects!',
+              'Slideshow is powered by <a href="http://www.mootools.net">Mootools 1.2</a> Morph technology...',
+              'A true separation of behavior and style...',
+              'Define slide transitions in your stylesheet independant of the javascript...',
+              'Combine styles for an infinite variation of effects...',
+              'In addition image overlapping is now optional...',
+              'With image overlap disabled one image will transition out before the next transitions in...',
+              'Useful with PNG images where the alpha channel could otherwise interfere with the show.',
+            ].each(function(str, i){ this[(i + 1) + '.jpg'] = { 'caption': str }; }, data);            
+               this.show = new Slideshow(this.el, data, { captions: true, classes: ['', '', '', '', '', '', '', 'alternate-images'], controller: true, duration: 1250, height: 400, hu: 'images/', overlap: false, thumbnails: true, transition: 'back:in:out', width: 500});
+               break;
+               
+             case 2: // Slideshow extension: Ken Burns show.
+              [
+                'Slideshow extension: Ken Burns show!',
+                'Includes panning and zooming effects...',
+                'The extension takes two additional options <code>zoom</code> and <code>pan</code>...',
+                'The <code>zoom</code> option zooms the slide 1× to 2× the size of the show...',
+                'The <code>pan</code> option pans the slide 0% to 100% of it’s overflow...',
+                'Zooming-only and panning-only shows are possible by setting the opposing option to 0...',
+                'Both options additionally accept a range of values in the form of an array...',
+                'For example <code>pan: [25, 75]</code> would randomly pan each slide between 25% and 75%...',
+                'Slideshow is extensible: use this extension of write your own!'
+              ].each(function(str, i){ this[(i + 1) + '.jpg'] = { 'caption': str }; }, data);            
+             this.show = new Slideshow.KenBurns(this.el, data, { captions: true, controller: true, delay: 5000, duration: 2000, height: 400, hu: 'images/', thumbnails: true, width: 500, zoom: 50 });
+             break;
+             
+             case 3: // Thumbnails: Intelligent and auto-scrolling.
+              [
+                'Thumbnails: Intelligent and auto-scrolling (random show)!',
+                'Thumbnails are bigger, stronger, faster...',
+                'Customize the regexp to generate your thumbnails based on image filenames...',
+                'Or set specific filenames for thumbnails in the data object for each image...',
+                'The thumbnails element will automatically scroll it’s overflow...',
+                'Thumbnails are smart too...',
+                'Slideshow knows if your thumbnails are portrait or landscape, multiple rows or columns...',
+                'Also introducing: random shows...',
+                'Combine with thumbnails for a very cool effect.'
+              ].each(function(str, i){ this[(i + 1) + '.jpg'] = { 'caption': str }; }, data);            
+             this.show = new Slideshow(this.el, data, { captions: true, classes: ['', '', '', '', '', '', '', '', '', '', 'alternate-thumbnails'], controller: true, duration: 1250, height: 400, hu: 'images/', random: true, thumbnails: true, transition: 'back:out', width: 500, zoom: 25 });
+             break;
+            
+             case 4: // Slideshow extension: Push show.
+              [
+                'Slideshow extension: Push show!',
+                'Includes a pushing effect that <em>pushes</em> one image out with another...',
+                'Note this extension requires Mootools compiled with Fx.Elements...',
+                'Combine with Fx.Transitions for a very cool effect...',
+                'Slideshow is extensible: use this extension of write your own!'
+              ].each(function(str, i){ this[(i + 1) + '.jpg'] = { 'caption': str }; }, data);            
+             this.show = new Slideshow.Push(this.el, data, { captions: true, controller: true, delay: 2500, duration: 2000, height: 400, hu: 'images/', transition: 'elastic:out', width: 500, zoom: 25 });
+             break;
+            
+             case 5: // Controller: Accessible and style-able.
+              [
+                'Controller: Accessible and style-able!',
+                'Slideshow includes a feature-complete controller...',
+                'Completely style-able with CSS...',
+                'Create your own controller as shown in the example...',
+                'Or with only previous / next arrows like Lightbox...',
+                'Customize CSS classes to affect how the controller appears / disappears...',
+                'Slideshow is also accessible...',
+                'Control the show with accesskeys...',
+                '<code>LEFT</code> and <code>RIGHT</code> arrow keys for the previous and next slides (with <code>SHIFT</code> for first and last)...',
+                'The letter <code>P</code> to toggle pause / play.'
+              ].each(function(str, i){ this[(i + 1) + '.jpg'] = { 'caption': str }; }, data);            
+             this.show = new Slideshow(this.el, data, { captions: true, classes: ['', '', '', '', '', '', '', '', '', 'alternate-controller'], controller: {transition: 'back:in:out'}, duration: 1000, height: 400, hu: 'images/', linked: true, thumbnails: true, width: 500 });
+             this.show.slideshow.retrieve('images').getElements('a').set('rel', 'lightbox');
+             var box = new Lightbox({ 
+               'onClose': function(){ this.pause(false); }.bind(this.show), 
+               'onOpen': function(){ this.pause(true); }.bind(this.show) 
+             });
+             box.image.addEvent('click', function(){ this.close(); }.bind(box));         
+             break;
+    
+             case 6: // Slideshow extension: Flash show.
+              [
+                'Slideshow extension: Flash show!',
+                'Includes a flashing color effect...',
+                'The extensions takes an additional option <code>color</code>...',
+                'Either a single value: <code>color: "#FFF"</code>...',
+                'Or an array: <code>color: ["#FFF", "#000"]</code>...',
+                'The values of which are applied incrementally to the slides in the show...',
+                'Slideshow is extensible: use this extension of write your own!'
+               ].each(function(str, i){ this[(i + 1) + '.jpg'] = { 'caption': str }; }, data);           
+             this.show = new Slideshow.Flash(this.el, data, { captions: true, color: ['#EC2415', '#7EBBFF'], controller: true, delay: 3000, duration: 3000, height: 400, hu: 'images/', width: 500 });
+               break;
+    
+               // case 7: // Hyperlink your show: Lightbox mashup.
+               //  [
+               //    'Hyperlink your show: Lightbox mashup!',
+               //    'Click to view the full-size image in a modal window above the show...',
+               //    'Slideshow includes plenty of hyperlinking options...',
+               //    'If your show has a default URL the class will use that for each image...',
+               //    'Default URL’s can be set in the HTML or via the <code>href</code> option...',
+               //    'Override the default value by passing in individual URL’s in the data object...',
+               //    'Or via the <code>linked</code> option...',
+               //    'Which will automatically link each image to it’s full-size counterpart...',
+               //    'Pair that with a script like <strong>Lightbox</strong> for the effect seen here.'
+               //  ].each(function(str, i){ this[(i + 1) + '.jpg'] = { 'caption': str }; }, data);            
+               // this.show = new Slideshow.KenBurns(this.el, data, { captions: true, controller: true, delay: 4000, duration: 1000, height: 400, hu: 'images/', linked: true, thumbnails: true, width: 500, zoom: 0 });
+               // this.show.slideshow.retrieve('images').getElements('a').set('rel', 'lightbox');
+               // var box = new Lightbox({ 
+               //   'onClose': function(){ this.pause(false); }.bind(this.show), 
+               //   'onOpen': function(){ this.pause(true); }.bind(this.show) 
+               // });
+               // box.image.addEvent('click', function(){ this.close(); }.bind(box));         
+               // break;
+    
+               case 7: // Slideshow extension: Fold show.
+                [
+                  'New Slideshow extension: Fold show!',
+                  'Inspired by jQuery’s <em>Fold FX</em>...',
+                  'Adds a folding effect...',
+                  'Works for non-overlapping and fast shows too...',
+                  'Slideshow is extensible: use this extension of write your own!'
+                ].each(function(str, i){ this[(i + 1) + '.jpg'] = { 'caption': str }; }, data);
+                this.show = new Slideshow.Fold(this.el, data, { captions: true, center: false, controller: true, duration: 1000, height: 400, hu: 'images/', transition: 'bounce:out', width: 500 });
+                break;
+    
+          default:
+            // This is the default show that launches when the page is first loaded.
+            // This show is loaded without any data and parses in the existing HTML images in order to create the show.
+               this.show = new Slideshow.KenBurns(this.el, null, { captions: true, controller: true, delay: 4000, duration: 1000, height: 400, hu: 'images/', thumbnails: true, width: 500, zoom: 0 });
+             }
+             
+           // This last little bit just inserts our thumbnails "fuzzy edge" overlays.
+           if (this.show.options.thumbnails){
+               ['a', 'b'].each(function(p){ 
+               new Element('div', { 'class': 'overlay ' + p }).inject(this.show.thumbnails);
+              }, this);
+           }
+           
+           this.show.image.setStyle('clip', 'auto');
+      }
+    }) 
 	</script>
 </head>
 <body>
-	<div id="overlap" class="slideshow">
-		<img src="images/1.jpg" alt="1">
-	</div>
-	
-	<div id="noOverlap" class="slideshow">
-		<img src="images/1.jpg" alt="1">
-	</div>
+  <div id="wrapper">
+    <!-- AddThis Button BEGIN -->
+    <div class="addthis">
+      <!-- <script type="text/javascript">addthis_pub = 'rloaderro';</script>
+      <a href="http://www.addthis.com/bookmark.php" onmouseover="return addthis_open(this, '', '[URL]', '[TITLE]')" onmouseout="addthis_close()" onclick="return addthis_sendto()"><img src="http://s9.addthis.com/button1-bm.gif" width="125" height="16" alt="Bookmark" /></a><script type="text/javascript" src="http://s7.addthis.com/js/152/addthis_widget.js"></script> -->
+    </div>
+    <!-- AddThis Button END -->
 
-	<div id="flash" class="slideshow">
-		<img src="images/1.jpg" alt="1">
-	</div>
+    <h1><a href="http://www.electricprism.com/aeron/slideshow" title="Slideshow 2!"><strong>Slideshow 2!</strong> is a javascript class for Mootools 1.2 to stream and animate the presentation of images on your website</a></h1>
+  
+    <h2><strong>Slideshow 2! is a javascript class for Mootools 1.2 to stream and animate the presentation of images on your website</strong>. This page features some examples of how Slideshow might be used to enhance the presentation of images on your website. Please view the source of this page for usage information.</h2>
+    
+    <p>If you are looking <strong>to download Slideshow, or for class documentation</strong>, please visit the open-source project at <a class="download" href="http://code.google.com/p/slideshow" title="Slideshow open-source project">Google Code.</a> If you are looking for the old version of Slideshow, it has been moved <a href="http://www.electricprism.com/aeron/slideshow+1" title="Slideshow 1">here.</a></p>
+  
+    <h3>Support</h3>
+      
+    <p>If you find this page helpful, <span id="donate">why not donate?</span> Because donations are voluntary, the act of making <strong>a small contribution has a big effect</strong> towards promoting future development and support.</p>
+    
+    <h3>Examples</h3>
+    
+    <p><code> new Slideshow('show', ['1.jpg', '2.jpg', '3.jpg'], { controller: true, hu: 'images/' }); </code></p>
+    
+    <p>By popular request, the following are some simplified examples of Slideshow usage:</p>
+    
+    <ul class="checkmarks">
+      <li><a href="example1.html">Example 1: Basic fading show</a></li>
+      <li><a href="example3.html">Example 3: Working with small images</a></li>
+      <li><a href="example2.html">Example 2: Integration with Lightbox</a></li>
+      <li><a href="example4.html">Example 4: Ken Burns extension</a></li>
+      <li><a href="example5.html">Example 5: Vertical thumbnails</a></li>
+      <li><a href="example6.html">Example 6: Multiple shows</a></li>
+    </ul>
+  
+    <h3>Demos</h3>
+  
+    <p>Click below to view the various demos - perhaps the most impressive effect of all is simply viewing this page <strong>with javascript turned off</strong>.</p>
+    
+    <ul id="demos" class="checkmarks">
+      <li><a>CSS-based transitions: Infinite effects</a></li>
+      <li><a>Slideshow extension: Ken Burns show</a></li>
+      <li><a>Thumbnails: Intelligent and auto-scrolling</a></li>
+      <li><a>Slideshow extension: Push show</a></li>
+      <li><a>Controller: Accessible and style-able</a></li>
+      <li><a>Slideshow extension: Flash show</a></li>
+      <!-- <li><a>Hyperlink your show: Lightbox mashup</a></li> -->
+      <li><a>Slideshow extension: Fold show</a></li>
+    </ul>
+  
+    <div id="show" class="slideshow">
+      <div class="slideshow-images">
+        <a rel="lightbox" href="images/1.jpg"><img id="slide-1" src="images/1.jpg" width="746" height="400" alt="Slideshow 2!" /></a>
+        <a rel="lightbox" href="images/2.jpg"><img id="slide-2" src="images/2.jpg" width="500" height="673" alt="Slideshow accepts data as a simple array of image filenames..." /></a>
+        <a rel="lightbox" href="images/3.jpg"><img id="slide-3" src="images/3.jpg" width="525" height="400" alt="Or as an object with optional caption, href and thumbnail information..." /></a>
+        <a rel="lightbox" href="images/4.jpg"><img id="slide-4" src="images/4.jpg" width="500" height="645" alt="Captions may be plain text or formatted with HTML..." /></a>
+        <a rel="lightbox" href="images/5.jpg"><img id="slide-5" src="images/5.jpg" width="537" height="400" alt="Slideshow can even parse in existing HTML images and automagically generate the show..." /></a>
+        <a rel="lightbox" href="images/6.jpg"><img id="slide-6" src="images/6.jpg" width="534" height="400" alt="Slideshow can also dynamically resize and center your images..." /></a>
+        <a rel="lightbox" href="images/7.jpg"><img id="slide-7" src="images/7.jpg" width="533" height="400" alt="Any size show is supported!" /></a>
+        <a rel="lightbox" href="images/8.jpg"><img id="slide-8" src="images/8.jpg" width="556" height="400" alt="Tweak your effects with the delay, duration and transition options..." /></a>
+        <a rel="lightbox" href="images/9.jpg"><img id="slide-9" src="images/9.jpg" width="500" height="684" alt="With support for all the Robert Penner easing transitions..." /></a>
+        <a rel="lightbox" href="images/10.jpg"><img id="slide-10" src="images/10.jpg" width="516" height="400" alt="New! Random and non-looping shows (play-through once and stop)..." /></a>
+        <a rel="lightbox" href="images/11.jpg"><img id="slide-11" src="images/11.jpg" width="510" height="400" alt="New! Optional image overlapping..." /></a>
+        <a rel="lightbox" href="images/12.jpg"><img id="slide-12" src="images/12.jpg" width="500" height="667" alt="New! Start the show from any slide - even from the URL!" /></a>
+      </div>
+    
+      <div class="slideshow-thumbnails">
+        <ul>
+          <li><a href="#slide-1"><img src="images/1t.jpg" width="50" height="40" alt="Slide thumbnail" /></a></li>
+          <li><a href="#slide-2"><img src="images/2t.jpg" width="50" height="40" alt="Slide thumbnail" /></a></li>
+          <li><a href="#slide-3"><img src="images/3t.jpg" width="50" height="40" alt="Slide thumbnail" /></a></li>
+          <li><a href="#slide-4"><img src="images/4t.jpg" width="50" height="40" alt="Slide thumbnail" /></a></li>
+          <li><a href="#slide-5"><img src="images/5t.jpg" width="50" height="40" alt="Slide thumbnail" /></a></li>
+          <li><a href="#slide-6"><img src="images/6t.jpg" width="50" height="40" alt="Slide thumbnail" /></a></li>
+          <li><a href="#slide-7"><img src="images/7t.jpg" width="50" height="40" alt="Slide thumbnail" /></a></li>
+          <li><a href="#slide-8"><img src="images/8t.jpg" width="50" height="40" alt="Slide thumbnail" /></a></li>
+          <li><a href="#slide-9"><img src="images/9t.jpg" width="50" height="40" alt="Slide thumbnail" /></a></li>
+          <li><a href="#slide-10"><img src="images/10t.jpg" width="50" height="40" alt="Slide thumbnail" /></a></li>
+          <li><a href="#slide-11"><img src="images/11t.jpg" width="50" height="40" alt="Slide thumbnail" /></a></li>
+          <li><a href="#slide-12"><img src="images/12t.jpg" width="50" height="40" alt="Slide thumbnail" /></a></li>
+        </ul>
+      </div>
+    </div>
 
-	<div id="fold" class="slideshow">
-		<img src="images/1.jpg" alt="1">
-	</div>
+    <h3 class="colophon"><a>Colophon</a></h3>
+    
+    <p id="colophon"><small>All photos were taken with a trusty Canon DigitalElph in New York, October 2007. Locales include: Cooper Lake, Poughkeepsie, Fix Brothers Apples, Overlook Mountain, Plattsclove, The Met, Museum of Natural History, Brooklyn Brewery.</small></p>
+  </div>
+  
+  <!-- Google Analytics -->
 
-	<div id="kenburns" class="slideshow">
-		<img src="images/1.jpg" alt="1">
-	</div>
-	
-	<div id="push" class="slideshow">
-		<img src="images/1.jpg" alt="1">
-	</div>	
+  <!-- <script type="text/javascript">
+	//<![CDATA[
+	  if (window.location.href.contains("electricprism.com")){
+      var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www."); document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));	    
+	  }
+  //]]>
+  </script>
+  <script type="text/javascript">
+	//<![CDATA[
+    if (window.location.href.contains("electricprism.com")){
+      var pageTracker = _gat._getTracker("UA-305279-3"); pageTracker._initData(); pageTracker._trackPageview();
+    }
+  //]]>
+  </script> -->
 </body>
 </html>

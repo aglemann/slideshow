@@ -1,0 +1,53 @@
+/**
+Stylesheet: Ligthbox.css
+	CSS for Lightbox with Slideshow.
+
+License:
+	MIT-style license.
+
+Copyright:
+	Copyright (c) 2008 [Aeron Glemann](http://www.electricprism.com/aeron/).
+	
+Notes:
+	This stylesheet is required for proper functioning of Lightbox.
+*/
+
+a:hover .photos {
+	border: 1px solid #999;
+}
+.lbLoading {
+	background: #fff url(loader.gif) no-repeat center;
+}
+.photos {
+	border: 1px solid #fff;
+	padding: 3px;
+}
+.lightboxDesc {
+	display: none;
+}
+#lbOverlay {
+	background-color: #000;
+	cursor: pointer;
+	left: 0;
+	position: absolute;
+	width: 100%;
+	z-index: 100000;
+}
+#lbCenter, #lbBottomContainer {
+	background-color: #fff;
+	left: 50%;
+	overflow: hidden;
+	position: absolute;
+	z-index: 100001;
+}
+#lbImage {
+	border: 10px solid #fff;
+	cursor: pointer;
+}
+#lbBottom {
+	border: 10px solid #fff;
+	border-top-style: none;
+	color: #000;
+	font: normal 11px/16px Arial, sans-serif;
+	text-align: left;
+}
