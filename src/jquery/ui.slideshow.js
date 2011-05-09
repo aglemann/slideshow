@@ -9,6 +9,10 @@ Copyright:
 	Copyright (c) 2011 [Aeron Glemann](http://www.electricprism.com/aeron/).
 */
 (function($){
+	WhenPaused = 1 << 0;
+	WhenPlaying = 1 << 1;
+	OnStart = 1 << 2;
+	
 	$.widget('ui.slideshow', {
 		options: {/*
 			onComplete: $empty,
@@ -17,7 +21,7 @@ Copyright:
 		    accesskeys: {'first': {'key': 'shift left', 'label': 'Shift + Leftwards Arrow'}, 'prev': {'key': 'left', 'label': 'Leftwards Arrow'}, 'pause': {'key': 'p', 'label': 'P'}, 'next': {'key': 'right', 'label': 'Rightwards Arrow'}, 'last': {'key': 'shift right', 'label': 'Shift + Rightwards Arrow'}},
 			captions: true,
 			center: true,
-			classes: [],
+			classes: [/*'slideshow', 'first', 'prev', 'play', 'pause', 'next', 'last', 'images', 'captions', 'controller', 'thumbnails', 'hidden', 'visible', 'inactive', 'active', 'loader'*/],
 			controller: true,
 			data: null,
 			delay: 2000,
@@ -46,27 +50,29 @@ Copyright:
 			Creates an instance of the Slideshow widget.
 		*/
 		_create: function(){
-			var match = window.location.href.match(this.options.match);
-			this.slide = this._slide = this.options.match && match ? match[1].toInt() : this.options.slide;
-			this.counter = this.delay = this.duration = 0;
+			var self = this,
+				match = window.location.href.match(this.options.match);
+			this.slide = this._slide = this.options.match && match ? match[1].toInt() 
+				: this.options.slide;
+			this.counter = this.timeToNextTransition = this.timeToTransitionComplete = 0;
 			this.direction = 'left';
 			this.cache = {};
 			this.paused = false;
 			if (!this.options.overlap)
 				this.options.duration *= 2;
-			var $anchor = this.element.find('a').length ? this.element.find('a') : $('<a />');
+			var $anchor = this.element.find('a').length ? this.element.find('a') 
+				: $('<a />');
 			if (!this.options.href)
 				this.options.href = $anchor.attr('href') || '';
 			if (this.options.hu.length && !(/\/$/).test(this.options.hu) 
 				this.options.hu += '/';
 			if (this.options.fast === true)
-				this.options.fast = 2;
-				
+				this.options.fast = WhenPaused | WhenPlaying;
+
 			// styles
 
-			var keys = ['slideshow', 'first', 'prev', 'play', 'pause', 'next', 'last', 'images', 'captions', 'controller', 'thumbnails', 'hidden', 'visible', 'inactive', 'active', 'loader'],
-				self = this,
-				this.classes = {};
+			var keys = ['slideshow', 'first', 'prev', 'play', 'pause', 'next', 'last', 'images', 'captions', 'controller', 'thumbnails', 'hidden', 'visible', 'inactive', 'active', 'loader'];
+			this.classes = {};
 			$(this.options.classes).each(function(i){
 				self.classes[keys[i]] = this || keys[i];
 			});	
@@ -79,6 +85,7 @@ Copyright:
 			
 			// data	
 			
+			var data = this.options.data;
 			if (!data){
 				this.options.hu = '';
 				data = {};
@@ -94,7 +101,7 @@ Copyright:
 			var loaded = this.load(data);
 			if (!loaded)
 				return; 
-				
+
 			// events
 
 			this.accesskeys = {};
@@ -109,9 +116,22 @@ Copyright:
 				accesskey.key = $.trim(obj.key);
 			}
 
+			this.accesskeys = {};
+			for (action in this.options.accesskeys){
+				var obj = this.options.accesskeys[action];
+				this.accesskeys[action] = accesskey = {'label': obj.label};
+				['shift', 'control', 'alt'].each(function(modifier){
+					var re = new RegExp(modifier, 'i');
+					accesskey[modifier] = obj.key.test(re);
+					obj.key = obj.key.replace(re, '');
+				});
+				accesskey.key = obj.key.trim();
+			}
+
 			$._bind('keyup', function(e){
 				for (var accesskey in this.accesskeys){
 					var action = this.accesskeys[accesskey];
+					// TODO match this up against jQuery Event metaKey
 					if (e.key == accesskey.key && e.shift == accesskey.shift && e.control == accesskey.control && e.alt == accesskey.alt)
 						this[action]();
 				}
@@ -121,42 +141,34 @@ Copyright:
 
 			var $el = this.element.find(this.classes.get('images')),
 				$img = this.element.find('img').length ? this.element.find('img') : $('<img />'),
-				$images = $el.length ? $el.empty() : $('<div />').addClass(this.classes.get('images').substr(1)).appendTo(this.element),
-				div = $images.getSize();
+				$images = $el.length ? $el.empty() 
+					: $('<div />').addClass(this.classes.get('images').substr(1)).appendTo(this.element);
 				
-				
-			^^^^^^	
-				
-				
-			this.height = this.options.height || div.y;		
-			this.width = this.options.width || div.x;
-			images.set({'styles': {'height': this.height, 'width': this.width}});
-			this.el.store('images', images);
-			this.a = this.image = img;
-			if (Browser.ie && Browser.version >= 7)
+			this.height = this.options.height || $images.height();		
+			this.width = this.options.width || $images.width();
+			$images.css({'height': this.height, 'width': this.width});
+			this.element.data('images', images);
+			this.a = this.image = $img;
+			if ($.browser.msie && $.browser.version >= 7)
 				this.a.style.msInterpolationMode = 'bicubic';
-			this.a.set('styles', {'display': 'none'});
+			this.a.css({'display': 'none'});
 			this.b = this.a.clone();
-			[this.a, this.b].each(function(img){
-				anchor.clone().cloneEvents(anchor).grab(img).inject(images);
+			$(this.a, this.b).each(function(){
+				$anchor.clone(true).append(this).appendTo($images);
 			});
 
 			// optional elements
 
-			if (this.options.captions)
-	 			new Caption(this);
-			if (this.options.controller)
-				new Controller(this);
-			if (this.options.loader)
-	 			new Loader(this);
-			if (this.options.thumbnails)
-				new Thumbnails(this);
+			// TODO best way to manage extensions (See UI.Dialog)
+			// this.options.captions && new Caption(this);
+			// this.options.controller && new Controller(this);
+			// this.options.loader && new Loader(this);
+			// this.options.thumbnails && new Thumbnails(this);
 
 			// begin show
 
-			this._preload();
+			this._preload(this.options.fast & OnStart);
 		},
-	});
 
 	/**
 	Public method: go
@@ -170,15 +182,20 @@ Copyright:
 	*/
 
 		go: function(n, direction){
-			if ((this.slide + this.data.images.length) % this.data.images.length == n || Date.now() < this.duration)
+			var nextSlide = (this.slide + this.data.images.length) % this.data.images.length;
+			if (n == nextSlide || $.now() < this.timeToTransitionComplete)
 				return;		
 			clearTimeout(this.timer);
-			this.delay = 0;		
-			this.direction = direction ? direction : (n < this._slide ? 'right' : 'left');
+			this.timeToNextTransition = 0;		
+			this.direction = direction ? direction 
+				: n < this._slide ? 'right' 
+				: 'left';
 			this.slide = this._slide = n;
-			if (this.preloader) 
-				this.preloader = this.preloader.destroy();
-			this._preload(this.options.fast == 2 || (this.options.fast == 1 && this.paused));
+			if (this.preloader){
+				this.preloader.remove();
+				delete this.preloader;
+			}
+			this._preload((this.options.fast & WhenPlaying) || (this.paused && this.options.fast & WhenPaused));
 		},
 
 	/**
@@ -229,30 +246,38 @@ Copyright:
 
 		pause: function(p){
 			if (p != undefined)
-				this.paused = p ? false : true;
-			if (this.paused){
+				this.paused = p ? false 
+					: true;
+			if (this.paused){ // play
 				this.paused = false;
-				this.duration = Date.now() + this.duration;		
-				this.timer = this._preload.delay(100, this);
-				[this.a, this.b].each(function(img){
+				this.timeToTransitionComplete = $.now() + this.timeToTransitionComplete;	
+				// TODO make sure proxy isn't needed here	
+				this.timer = setTimeout(this._preload, 50);
+				$(this.a, this.b).each(function(){
+					
+					
 					['morph', 'tween'].each(function(p){
 						if (this.retrieve(p)) this.get(p).resume();
 					}, img);
+					
+					
 				});
-				if (this.controller)
-					this.el.retrieve('pause').getParent().removeClass(this.classes.play);
+				this.controller && this.el.data('pause').parent().removeClass(this.classes.play);
 			} 
-			else {
+			else { // pause
 				this.paused = true;
-				this.duration = this.duration - Date.now();
+				this.timeToTransitionComplete = this.timeToTransitionComplete - $.now();
 				clearTimeout(this.timer);
-				[this.a, this.b].each(function(img){
+				$(this.a, this.b).each(function(){
+					
+					
 					['morph', 'tween'].each(function(p){
 						if (this.retrieve(p)) this.get(p).pause();
 					}, img);
+					
+					
 				});
-				if (this.controller)
-					this.el.retrieve('pause').getParent().addClass(this.classes.play);
+				this.controller && this.el.data('pause').parent().addClass(this.classes.play);
 			}
 		},
 
@@ -265,7 +290,8 @@ Copyright:
 	*/
 
 		next: function(last){
-			var n = last ? this.data.images.length - 1 : this._slide;
+			var n = last ? this.data.images.length - 1 
+				: this._slide;
 			this.go(n, 'left');
 		},
 
@@ -295,18 +321,23 @@ Copyright:
 		load: function(data){
 			this.firstrun = true;
 			this.showed = {'array': [], 'i': 0};
-			if (typeOf(data) == 'array'){
+			if ($(data).isArray()){
 				this.options.captions = false;			
-				data = new Array(data.length).associate(data.map(function(image, i){ return image + '?' + i })); 
+				data = $(data).map(function(i){ return this + '?' + i })); 
 			}
 			this.data = {'images': [], 'captions': [], 'hrefs': [], 'thumbnails': [], 'targets': [], 'titles': []};
 			for (var image in data){
 				var obj = data[image] || {},
 					image = this.options.hu + image,
-					caption = obj.caption ? obj.caption.trim() : '',
-					href = obj.href ? obj.href.trim() : (this.options.linked ? image : this.options.href),
-					target = obj.target ? obj.target.trim() : '_self',
-					thumbnail = obj.thumbnail ? this.options.hu + obj.thumbnail.trim() : image.replace(this.options.replace[0], this.options.replace[1]),
+					caption = obj.caption ? $(obj.caption).trim() 
+						: '',
+					href = obj.href ? $(obj.href).trim() 
+						: this.options.linked ? image 
+						: this.options.href,
+					target = obj.target ? $(obj.target).trim() 
+						: '_self',
+					thumbnail = obj.thumbnail ? this.options.hu + $(obj.thumbnail).trim() 
+						: image.replace(this.options.replace[0], this.options.replace[1]),
 					title = caption.replace(/<.+?>/gm, '').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, "'");
 				this.data.images.push(image);
 				this.data.captions.push(caption);
@@ -316,19 +347,26 @@ Copyright:
 				this.data.titles.push(title);
 			}
 			if (this.options.random)
-				this.slide = this._slide = Number.random(0, this.data.images.length - 1);
+				this.slide = this._slide = Math.floor(Math.random() * this.data.images.length - 1);
 
 			// only run when data is loaded dynamically into an existing slideshow instance
 
-			if (this.options.thumbnails && this.el.retrieve('thumbnails'))
-				this._thumbnails();
-			if (this.el.retrieve('images')){
-				[this.a, this.b].each(function(img){
+			if (this.options.thumbnails && this.el.data('thumbnails'))
+				new Thumbnails(this);
+			if (this.el.data('images')){
+				$(this.a, this.b).each(function(img){
+					
+					
+					
 					['morph', 'tween'].each(function(p){
 						if (this.retrieve(p)) this.get(p).cancel();
 					}, img);
+					
+					
+					
+					
 				});
-				this.slide = this._slide = this.duration = 0;
+				this.slide = this._slide = this.timeToTransitionComplete = 0;
 				this.go(0);		
 			}
 			return this.data.images.length;
@@ -346,18 +384,15 @@ Copyright:
 	*/
 
 		destroy: function(p){
-			Object.each(this.events, function(array, e){
-				array.each(function(fn){ document.removeEvent(e, fn); });
-			});
 			this.pause(1);
-			if (this.options.loader)
-				clearTimeout(this.el.retrieve('loader').retrieve('timer'));		
-			if (this.options.thumbnails)
-				clearTimeout(this.el.retrieve('thumbnails').retrieve('timer'));
-			this.el.uid = Native.UID++;
-			if (p)
-				this.el[p]();
+			var self = this;
+			'caption loader thumbnails'.split(' ').each(function(timer){
+				self.options[this] && (timer = self[i].data('timer')) && clearTimeout(timer);
+			});
 		},
+
+========== SEE TODOS
+
 
 	/**
 	Private method: preload
@@ -369,12 +404,17 @@ Copyright:
 				cached = loaded = !!this.cache[src];
 			if (!cached){
 				if (!this.preloader)
-				 	this.preloader = new Asset.image(src, {'onload': function(){
-						this.store('loaded', true);
-					}});
+				 	this.preloader = new Asset.image(src, {
+						'onerror': function(){
+							// do something
+						},
+						'onload': function(){
+							this.store('loaded', true);
+						}
+					});
 				loaded = this.preloader.retrieve('loaded') && this.preloader.get('width');
 			}
-			if (loaded && Date.now() > this.delay && Date.now() > this.duration){
+			if (loaded && Date.now() > this.timeToNextTransition && Date.now() > this.timeToTransitionComplete){
 				var src = this.data.images[this._slide].replace(/([^?]+).*/, '$1');
 				if (this.preloader){
 					this.cache[src] = {
@@ -392,13 +432,14 @@ Copyright:
 					this.stopped = this.end = false;
 					return;				
 				}
-				this.image = this.counter % 2 ? this.b : this.a;
-				this.image.set('styles', {'display': 'block', 'height': 'auto', 'visibility': 'hidden', 'width': 'auto', 'zIndex': this.counter});
+				this.image = this.counter % 2 ? this.b 
+					: this.a;
+				this.image.set('styles', {'display': 'block', 'height': null, 'visibility': 'hidden', 'width': null, 'zIndex': this.counter});
 				this.image.set(this.cache[src]);
-				if (this.options.resize)
-					this._resize(this.image);
-				if (this.options.center)
-					this._center(this.image);
+				this.image.width = this.cache[src].width;
+				this.image.height = this.cache[src].height;
+				this.options.resize && this._resize(this.image);
+				this.options.center && this._center(this.image);
 				var anchor = this.image.getParent();
 				if (this.data.hrefs[this._slide]){
 					anchor.set('href', this.data.hrefs[this._slide]);
@@ -410,19 +451,15 @@ Copyright:
 				}
 				var title = this.data.titles[this._slide];
 				this.image.set('alt', title);		
-				if (this.options.titles)
-					anchor.set('title', title);
-				if (this.options.loader)
-					this.loader.fireEvent('hide');
-				if (this.options.captions)
-					this.caption.fireEvent('update', fast);				
-				if (this.options.thumbnails)
-					this.thumbnails.fireEvent('update', fast); 			
+				this.options.titles && anchor.set('title', title);
+				this.options.loader && this.loader.fireEvent('hide');
+				this.options.captions && this.caption.fireEvent('update', fast);				
+				this.options.thumbnails && this.thumbnails.fireEvent('update', fast); 			
 				this._show(fast);
-				this._loaded();
+				this._loaded(fast);
 			} 
 			else {
-				if (Date.now() > this.delay && this.options.loader)
+				if (Date.now() > this.timeToNextTransition && this.options.loader)
 					this.loader.fireEvent('show');
 				this.timer = this._preload.delay(50, this, fast); 
 			}
@@ -435,12 +472,14 @@ Copyright:
 
 		_show: function(fast){
 			if (!this.image.retrieve('morph')){
-				var options = this.options.overlap ? {'duration': this.options.duration, 'link': 'cancel'} : {'duration': this.options.duration / 2, 'link': 'chain'};
-				$$(this.a, this.b).set('morph', Object.merge(options, {'onStart': this._start.bind(this), 'onComplete': this._complete.bind(this), 'transition': this.options.transition}));
+				var options =  this.options.overlap ? {'link': 'cancel'} : {'link': 'chain'};
+				$$(this.a, this.b).set('morph', Object.merge(options, {'duration': this.options.duration, 'onStart': this._start.bind(this), 'onComplete': this._complete.bind(this), 'transition': this.options.transition}));
 			}
-			var hidden = this.classes.get('images', (this.direction == 'left' ? 'next' : 'prev')),
+			var hidden = this.classes.get('images', (this.direction == 'left' ? 'next' 
+				: 'prev')),
 				visible = this.classes.get('images', 'visible'),
-				img = this.counter % 2 ? this.a : this.b;
+				img = this.counter % 2 ? this.a 
+					: this.b;
 			if (fast){			
 				img.get('morph').cancel().set(hidden);
 				this.image.get('morph').cancel().set(visible); 			
@@ -451,12 +490,13 @@ Copyright:
 					this.image.get('morph').set(hidden).start(visible);
 				} 
 				else {
-					var fn = function(hidden, visible){
+					var fn = function(visible){
 						this.image.get('morph').start(visible);
-					}.pass([hidden, visible], this);
-					hidden = this.classes.get('images', (this.direction == 'left' ? 'prev' : 'next'));
+					}.pass(visible, this);
 					if (this.firstrun)
 						return fn();
+					hidden = this.classes.get('images', (this.direction == 'left' ? 'prev' 
+						: 'next'));
 					this.image.get('morph').set(hidden);				
 					img.get('morph').set(visible).start(hidden).chain(fn);
 				}
@@ -468,11 +508,12 @@ Copyright:
 		Run after the current image has been loaded, sets up the next image to be shown.
 	*/
 
-		_loaded: function(){
+		_loaded: function(fast){
 			this.counter++;
-			this.delay = Date.now() + this.options.duration + this.options.delay;
-			this.direction = 'left';
-			this.duration = this.options.fast == 2 || (this.options.fast == 1 && this.paused) ? 0 : Date.now() + this.options.duration;			
+			this.timeToNextTransition = Date.now() + this.options.duration + this.options.delay;
+			this.direction = 'left';			
+			this.timeToTransitionComplete = fast ? 0 
+				: Date.now() + this.options.duration;
 			if (this._slide == (this.data.images.length - 1) && !this.options.loop && !this.options.random)
 				this.stopped = this.end = true;
 			if (this.options.random){
@@ -494,7 +535,7 @@ Copyright:
 				(function(){ this.image.setStyle('visibility', 'visible'); }).delay(1, this);			
 			if (this.preloader) 
 				this.preloader = this.preloader.destroy();
-			this._preload();
+			this.paused || this._preload();
 		},
 
 	/**
@@ -514,13 +555,14 @@ Copyright:
 	*/
 
 		_resize: function(img){
-			var size = img.getSize(),
-				h = size.y, w = size.x,
+			var h = img.get('height').toFloat(), w = img.get('width').toFloat(),
 				dh = this.height / h, dw = this.width / w;
 			if (this.options.resize == 'fit')
-				dh = dw = dh > dw ? dw : dh;
+				dh = dw = dh > dw ? dw 
+					: dh;
 			if (this.options.resize == 'fill')
-				dh = dw = dh > dw ? dh : dw;
+				dh = dw = dh > dw ? dh 
+					: dw;
 			img.set('styles', {'height': Math.ceil(h * dh), 'width': Math.ceil(w * dw)});
 		},
 
@@ -539,9 +581,8 @@ Copyright:
 	*/
 
 		_complete: function(){
-			if ((this.firstrun && this.options.paused) || this.paused){
+			if (this.firstrun && this.options.paused)
 				this.pause(1);
-			}
 			this.firstrun = false;
 			this.fireEvent('complete');
 		}	
@@ -561,6 +602,7 @@ Copyright:
 			fps: 50,
 			transition: 'sine:in:out',
 			unit: false, */
+			delay: 0,
 			link: 'cancel'			
 		},
 
@@ -581,7 +623,7 @@ Copyright:
 				'events': { 'update': this.update.bind(slideshow) },
 				'morph': this.options,
 				'role': 'description'
-			});
+			}).store('delay', this.options.delay);
 		    if (!caption.get('id'))
 		    	caption.set('id', 'Slideshow-' + Date.now());
 		    slideshow.el.retrieve('images').set('aria-labelledby', caption.get('id'));
@@ -589,15 +631,21 @@ Copyright:
 		},
 
 		update: function(fast){
-		    var empty = (this.data.captions[this._slide] === '');
+		    var empty = !this.data.captions[this._slide].length, timer;
+			if (timer = this.caption.retrieve('timer'))
+				clearTimeout(timer);
 		    if (fast){
-		      var p = empty ? 'hidden' : 'visible';
+		      var p = empty ? 'hidden' 
+				: 'visible';
 		      this.caption.set({'aria-hidden': empty, 'html': this.data.captions[this._slide]}).get('morph').cancel().set(this.classes.get('captions', p));
 		    }
 		    else {
-		      var fn1 = empty ? function(){} : function(n){
-		        this.caption.set('html', this.data.captions[n]).morph(this.classes.get('captions', 'visible'));
-		      }.pass(this._slide, this);    
+		      var fn1 = empty ? function(){} 
+				: function(caption){
+				this.caption.store('timer', setTimeout(function(caption){
+			        this.caption.set('html', caption).morph(this.classes.get('captions', 'visible'));
+				}.pass(caption, this), this.caption.retrieve('delay')));
+		      }.pass(this.data.captions[this._slide], this);    
 		      var fn2 = function(){ 
 		        this.caption.set('aria-busy', false); 
 		      }.bind(this);
@@ -642,7 +690,8 @@ Copyright:
 				i = 0;
 			Object.each(slideshow.accesskeys, function(accesskey, action){
 				var li = new Element('li', {
-					'class': (action == 'pause' && this.options.paused) ? this.classes.play + ' ' + this.classes[action] : this.classes[action]
+					'class': (action == 'pause' && this.options.paused) ? this.classes.play + ' ' + this.classes[action] 
+						: this.classes[action]
 				}).inject(ul);
 				var a = this.el.retrieve(action, new Element('a', {
 					'role': 'menuitem', 'tabindex': i++, 'title': accesskey.label
@@ -680,7 +729,7 @@ Copyright:
 
 		keydown: function(e){
 			Object.each(this.accesskeys, function(accesskey, action){
-				if (e.key == accesskey.key && e.shift == accesskey.shift && e.control == accesskey.control && e.alt == accesskey.alt && e.meta == accesskey.meta){
+				if (e.key == accesskey.key && e.shift == accesskey.shift && e.control == accesskey.control && e.alt == accesskey.alt){
 					if (this.controller.get('aria-hidden') == 'true')
 						this.controller.get('morph').set(this.classes.get('controller', 'visible'));
 					this.el.retrieve(action).fireEvent('mouseenter');
@@ -690,7 +739,7 @@ Copyright:
 
 		keyup: function(e){
 			Object.each(this.accesskeys, function(accesskey, action){
-				if (e.key == accesskey.key && e.shift == accesskey.shift && e.control == accesskey.control && e.alt == accesskey.alt && e.meta == accesskey.meta){
+				if (e.key == accesskey.key && e.shift == accesskey.shift && e.control == accesskey.control && e.alt == accesskey.alt){
 					if (this.controller.get('aria-hidden') == 'true')
 						this.controller.set('aria-hidden', false).fireEvent('hide'); 
 					this.el.retrieve(action).fireEvent('mouseleave');
@@ -700,7 +749,8 @@ Copyright:
 
 		mousemove: function(e){
 			var images = this.el.retrieve('images').getCoordinates(),
-				action = (e.page.x > images.left && e.page.x < images.right && e.page.y > images.top && e.page.y < images.bottom) ? 'show' : 'hide';
+				action = (e.page.x > images.left && e.page.x < images.right && e.page.y > images.top && e.page.y < images.bottom) ? 'show' 
+					: 'hide';
 			this.controller.fireEvent(action);
 		},
 
@@ -852,9 +902,10 @@ Copyright:
 			});
 			var coords = thumbnails.getCoordinates();
 			if (!options.scroll)
-				options.scroll = (coords.height > coords.width) ? 'y' : 'x';
-			var props = (options.scroll == 'y') ? ['top', 'bottom', 'height', 'y', 'width'] 
-				: ['left', 'right', 'width', 'x', 'height'];
+				options.scroll = (coords.height > coords.width) ? 'y' 
+					: 'x';
+			var props = (options.scroll == 'y') ? 'top bottom height y width'.split(' ') 
+				: 'left right width x height'.split(' ');
 			thumbnails.store('props', props).store('delay', 1000 / this.options.fps);
 			slideshow.events.push('mousemove', this.mousemove.bind(thumbnails));
 			thumbnails.inject(slideshow.el);
@@ -887,7 +938,8 @@ Copyright:
 				a = thumbnails.getElements('a')[i];
 			if (a){
 				(function(a){
-					var visible = i == this.slide ? 'active' : 'inactive';					
+					var visible = i == this.slide ? 'active' 
+						: 'inactive';					
 					a.store('loaded', true).get('morph').set(this.classes.get('thumbnails', 'hidden')).start(this.classes.get('thumbnails', visible));	
 				}).delay(Math.max(1000 / this.data.thumbnails.length, 100), this, a);
 			}					
@@ -933,10 +985,7 @@ Copyright:
 					li = document.id(uid + n).getCoordinates();
 				delta = div[pos] + (div[size] / 2) - (li[size] / 2) - li[pos];
 				value = (ul[axis] - div[pos] + delta).limit(this.retrieve('limit'), 0);
-				if (fast)	
-					tween.set(value);
-				else						 
-					tween.start(value);
+				tween[fast ? 'set' : 'start'](value);
 			}
 			else{
 				var area = div[props[2]] / 3, 
@@ -980,4 +1029,4 @@ Copyright:
 				thumbnails.fireEvent('scroll', [this._slide, fast]);
 		}
 	});
-})(jQuery);
+})();
