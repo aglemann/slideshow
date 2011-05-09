@@ -15,10 +15,10 @@ Copyright (c) 2011 [Aeron Glemann](http://www.electricprism.com/aeron/).
 
 ### Files
 
-css/          - Folder containing stylesheet and CSS background images.
-images/       - Folder with example images.
-index.html    - Example script usage.
-js/           - Folder with the Slideshow scripts and Mootools 1.3.1.
+- css/          - Folder containing stylesheet and CSS background images.
+- images/       - Folder with example images.
+- index.html    - Example script usage.
+- js/           - Folder with the Slideshow scripts and Mootools.
 
 ### Support
 
