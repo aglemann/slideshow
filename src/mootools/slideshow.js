@@ -95,10 +95,17 @@ Dependencies:
 				}, this);
 			this.classes = values.associate(keys);
 			this.classes.get = function(){
-				var str = '.' + this.slideshow;
-				for (var i = 0, l = arguments.length; i < l; i++)
-					str += '-' + this[arguments[i]];
-				return str;
+				var str = this.slideshow,
+					args = arguments,
+					i = nameOnly = 0;
+				for (; i < args.length; i++){
+					if (args[i] === true)
+						nameOnly = 1;
+					else	
+						str += '-' + this[args[i]];
+				}
+				return nameOnly ? str
+					: '.' + str;
 			}.bind(this.classes);
 
 			// data	
@@ -155,7 +162,7 @@ Dependencies:
 			var el = this.el.getElement(this.classes.get('images')),
 				img = this.el.getElement('img') || new Element('img'),
 				images = el ? el.empty() 
-					: new Element('div', {'class': this.classes.get('images').substr(1)}).inject(this.el),
+					: new Element('div', {'class': this.classes.get('images', true)}).inject(this.el),
 				div = images.getSize();
 			this.height = this.options.height || div.y;		
 			this.width = this.options.width || div.x;
@@ -611,15 +618,17 @@ Dependencies:
 			this.setOptions(options);
 			var el = slideshow.el.getElement(slideshow.classes.get('captions')),
 				caption = el ? el.dispose().empty()
-					: new Element('div', {'class': slideshow.classes.get('captions').substr(1)});
+					: new Element('div', {'class': slideshow.classes.get('captions', true)});
 			slideshow.caption = caption;
-			caption.set({
-		    	'aria-busy': false,
-		    	'aria-hidden': false,
-				'events': { 'update': this.update.bind(slideshow) },
-				'morph': this.options,
-				'role': 'description'
-			}).store('delay', this.options.delay);
+			caption
+				.set({
+			    	'aria-busy': false,
+			    	'aria-hidden': false,
+					'events': { 'update': this.update.bind(slideshow) },
+					'morph': this.options,
+					'role': 'description'
+				})
+				.store('delay', this.options.delay);
 		    if (!caption.get('id'))
 		    	caption.set('id', 'Slideshow-' + Date.now());
 		    slideshow.el.retrieve('images').set('aria-labelledby', caption.get('id'));
@@ -627,25 +636,38 @@ Dependencies:
 		},
 
 		update: function(fast){
-		    var empty = !this.data.captions[this._slide].length, timer;
+		    var empty = !this.data.captions[this._slide].length, 
+				timer;
 			if (timer = this.caption.retrieve('timer'))
 				clearTimeout(timer);
 		    if (fast){
 		      var p = empty ? 'hidden' 
 				: 'visible';
-		      this.caption.set({'aria-hidden': empty, 'html': this.data.captions[this._slide]}).get('morph').cancel().set(this.classes.get('captions', p));
+		      this.caption
+				.set({'aria-hidden': empty, 'html': this.data.captions[this._slide]})
+				.get('morph')
+					.cancel()
+					.set(this.classes.get('captions', p));
 		    }
 		    else {
 		      var fn1 = empty ? function(){} 
 				: function(caption){
-				this.caption.store('timer', setTimeout(function(caption){
-			        this.caption.set('html', caption).morph(this.classes.get('captions', 'visible'));
-				}.pass(caption, this), this.caption.retrieve('delay')));
-		      }.pass(this.data.captions[this._slide], this);    
+					this.caption.store('timer', setTimeout(function(caption){
+				        this.caption
+							.set('html', caption)
+							.morph(this.classes.get('captions', 'visible'));
+					}.pass(caption, this), this.caption.retrieve('delay')));
+			      }.pass(this.data.captions[this._slide], this);    
 		      var fn2 = function(){ 
 		        this.caption.set('aria-busy', false); 
 		      }.bind(this);
-		      this.caption.set('aria-busy', true).get('morph').cancel().start(this.classes.get('captions', 'hidden')).chain(fn1, fn2);
+		      this.caption
+				.set('aria-busy', true)
+				.get('morph')
+					.clearChain()
+					.cancel()
+					.start(this.classes.get('captions', 'hidden'))
+					.chain(fn1, fn2);
 		    }
 		}
 	});
@@ -676,11 +698,16 @@ Dependencies:
 			this.setOptions(options);
 			var el = slideshow.el.getElement(slideshow.classes.get('controller')),
 				controller = el ? el.dispose().empty()
-					: new Element('div', {'class': slideshow.classes.get('controller').substr(1)});
+					: new Element('div', {'class': slideshow.classes.get('controller', true)});
 			slideshow.controller = controller;
 			controller.set({
 				'aria-hidden': false, 
-				'role': 'menubar'
+				'events': {
+					'hide': this.hide.pass(slideshow.classes.get('controller', 'hidden'), controller),
+					'show': this.show.pass(slideshow.classes.get('controller', 'visible'), controller)
+				},
+				'role': 'menubar',
+				'morph': this.options
 			});
 			var ul = new Element('ul', {'role': 'menu'}).inject(controller),
 				i = 0;
@@ -690,7 +717,9 @@ Dependencies:
 						: this.classes[action]
 				}).inject(ul);
 				var a = this.el.retrieve(action, new Element('a', {
-					'role': 'menuitem', 'tabindex': i++, 'title': accesskey.label
+					'role': 'menuitem', 
+					'tabindex': i++, 
+					'title': accesskey.label
 				}).inject(li));
 				a.set('events', {
 					'click': function(action){
@@ -704,13 +733,6 @@ Dependencies:
 					}.pass(this.classes.active, a)
 				});		
 			}, slideshow);
-			controller.set({
-				'events': {
-					'hide': this.hide.pass(slideshow.classes.get('controller', 'hidden'), controller),
-					'show': this.show.pass(slideshow.classes.get('controller', 'visible'), controller)
-				},
-				'morph': this.options
-			}).store('hidden', false);
 			slideshow.events
 				.push('keydown', this.keydown.bind(slideshow))
 				.push('keyup',	this.keyup.bind(slideshow))
@@ -780,13 +802,23 @@ Dependencies:
 			if (options === true)
 				options = {};
 			this.setOptions(options);
-			var loader = new Element('div', {
-				'aria-hidden': false,
-				'class': slideshow.classes.get('loader').substr(1),				
-				'morph': this.options,
-				'role': 'progressbar'
-			}).store('animate', false).store('i', 0).store('delay', 1000 / this.options.fps).inject(slideshow.el);
+			var loader = new Element('div', {'class': slideshow.classes.get('loader', true)});
 			slideshow.loader = loader;
+			loader
+				.set({
+					'aria-hidden': false,
+					'events': {
+						'animate': this.animate.bind(loader),
+						'hide': this.hide.pass(slideshow.classes.get('loader', 'hidden'), loader),
+						'show': this.show.pass(slideshow.classes.get('loader', 'visible'), loader)
+					},					
+					'morph': this.options,
+					'role': 'progressbar'
+				})
+				.store('animate', false)
+				.store('delay', 1000 / this.options.fps)
+				.store('frame', 0)
+				.inject(slideshow.el); // Must be in DOM in order to get backgroundImage
 			var url = loader.getStyle('backgroundImage').replace(/url\(['"]?(.*?)['"]?\)/, '$1').trim();
 			if (url){
 				if (url.test(/\.png$/) && Browser.ie && Browser.version < 7)
@@ -796,34 +828,27 @@ Dependencies:
 						width = this.get('width'), 
 						height = this.get('height');
 					if (width > size.x)
-						loader.store('x', size.x).store('animate', 'x').store('frames', (width / size.x).toInt());
+						loader.store('animate', 'x').store('frames', (width / size.x).toInt()).store('x', size.x);
 					if (height > size.y)
-						loader.store('y', size.y).store('animate', 'y').store('frames', (height / size.y).toInt());
+						loader.store('animate', 'y').store('frames', (height / size.y).toInt()).store('y', size.y);
+					loader.fireEvent('show');
 				}});
 			}
-			loader.set('events', {
-				'animate': this.animate.bind(loader),
-				'hide': this.hide.pass(slideshow.classes.get('loader', 'hidden'), loader),
-				'show': this.show.pass(slideshow.classes.get('loader', 'visible'), loader)
-			});
 			loader.fireEvent('hide');
 		},
 
 		animate: function(){
 			var animate = this.retrieve('animate');
-			if (!animate)
-				return;
-			var i = (this.retrieve('i').toInt() + 1) % this.retrieve('frames');
-			this.store('i', i);
-			var n = (i * this.retrieve(animate)) + 'px';
-			if (animate == 'x')
-				this.setStyle('backgroundPosition', n + ' 0px');			
-			if (animate == 'y')
-				this.setStyle('backgroundPosition', '0px ' + n);			
+			if (animate){
+				var frame = (this.retrieve('frame').toInt() + 1) % this.retrieve('frames');
+				this.store('frame', frame);
+				var n = (frame * this.retrieve(animate)) + 'px';
+				this.setStyle('backgroundPosition', animate == 'x' ? n + ' 0px' : '0px ' + n);			
+			}
 		},
 
 		hide: function(hidden){
-			if (this.get('aria-hidden') == 'false'){
+			if (this.get('aria-hidden') == 'false'){ // Since it's an element attribute value is always string
 				this.set('aria-hidden', true).morph(hidden);
 				if (this.retrieve('animate'))
 					clearTimeout(this.retrieve('timer'));
@@ -831,7 +856,7 @@ Dependencies:
 		},
 
 		show: function(visible){
-			if (this.get('aria-hidden') == 'true'){
+			if (this.get('aria-hidden') == 'true'){ // Since it's an element attribute value is always string
 				this.set('aria-hidden', false).morph(visible);
 				if (this.retrieve('animate')){
 					this.store('timer', function(){ 
@@ -864,23 +889,37 @@ Dependencies:
 		},
 
 		initialize: function(slideshow){
-			var options = (slideshow.options.thumbnails === true) ? {} 
-				: slideshow.options.thumbnails;
+			var options = slideshow.options.thumbnails;
+			if (options === true)
+				options = {};
 			this.setOptions(options);
 			var el = slideshow.el.getElement(slideshow.classes.get('thumbnails')),
 				thumbnails = el ? el.empty() 
-					: new Element('div', {'class': slideshow.classes.get('thumbnails').substr(1)});
+					: new Element('div', {'class': slideshow.classes.get('thumbnails', true)});
 			slideshow.thumbnails = thumbnails;
-			thumbnails.set({'role': 'menubar', 'styles': {'overflow': 'hidden'}});
+			thumbnails.set({
+				'events': {
+					'scroll': this.scroll.bind(thumbnails),
+					'update': this.update.bind(slideshow)
+				},
+				'role': 'menubar', 
+				'styles': {'overflow': 'hidden'}
+			});
 			var uid = thumbnails.retrieve('uid', 'Slideshow-' + Date.now()),
-				ul = new Element('ul', {'role': 'menu', 'styles': {'left': 0, 'position': 'absolute', 'top': 0}, 'tween': {'link': 'cancel'}}).inject(thumbnails);
+				ul = new Element('ul', {
+					'role': 'menu', 
+					'styles': {
+						'left': 0, 
+						'position': 'absolute', 
+						'top': 0
+					}, 
+					'tween': {'link': 'cancel'}
+				}).inject(thumbnails);
 			slideshow.data.thumbnails.each(function(thumbnail, i){
 				var li = new Element('li', {'id': uid + i}).inject(ul),
 					a = new Element('a', {
-						'class': slideshow.classes.get('thumbnails', 'hidden').substr(1),
-						'events': {
-							'click': this.click.pass(i, slideshow)
-						},
+						'class': slideshow.classes.get('thumbnails', 'hidden', true),
+						'events': {'click': this.click.pass(i, slideshow)},
 						'href': slideshow.data.images[i],
 						'morph': this.options,
 						'role': 'menuitem',
@@ -892,16 +931,10 @@ Dependencies:
 					'onload': this.onload.pass(i, slideshow)
 				}).inject(a);
 			}, this);
-			thumbnails.set('events', {
-				'scroll': this.scroll.bind(thumbnails),
-				'update': this.update.bind(slideshow)
-			});
 			var coords = thumbnails.getCoordinates();
-			if (!options.scroll)
-				options.scroll = (coords.height > coords.width) ? 'y' 
-					: 'x';
-			var props = (options.scroll == 'y') ? 'top bottom height y width'.split(' ') 
-				: 'left right width x height'.split(' ');
+			this.options.scroll = this.options.scroll || (coords.height > coords.width) ? 'y' 
+				: 'x';
+			var props = (this.options.scroll == 'y' ? 'top bottom height y width' : 'left right width x height').split(' ');
 			thumbnails.store('props', props).store('delay', 1000 / this.options.fps);
 			slideshow.events.push('mousemove', this.mousemove.bind(thumbnails));
 			thumbnails.inject(slideshow.el);
@@ -917,8 +950,9 @@ Dependencies:
 			if (e.page.x > coords.left && e.page.x < coords.right && e.page.y > coords.top && e.page.y < coords.bottom){
 				this.store('page', e.page);			
 				if (!this.retrieve('mouseover')){
-					this.store('mouseover', true);
-					this.store('timer', function(){this.fireEvent('scroll');}.periodical(this.retrieve('delay'), this));
+					this
+						.store('mouseover', true)
+						.store('timer', function(){this.fireEvent('scroll')}.periodical(this.retrieve('delay'), this));
 				}
 			}
 			else {
