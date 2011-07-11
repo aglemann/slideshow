@@ -24,7 +24,7 @@ Dependencies:
 			onComplete: $empty,
 			onEnd: $empty,
 			onStart: $empty,*/
-		    accesskeys: {'first': {'key': 'shift left', 'label': 'Shift + Leftwards Arrow'}, 'prev': {'key': 'left', 'label': 'Leftwards Arrow'}, 'pause': {'key': 'p', 'label': 'P'}, 'next': {'key': 'right', 'label': 'Rightwards Arrow'}, 'last': {'key': 'shift right', 'label': 'Shift + Rightwards Arrow'}},
+		  accesskeys: {'first': {'key': 'shift left', 'label': 'Shift + Leftwards Arrow'}, 'prev': {'key': 'left', 'label': 'Leftwards Arrow'}, 'pause': {'key': 'p', 'label': 'P'}, 'next': {'key': 'right', 'label': 'Rightwards Arrow'}, 'last': {'key': 'shift right', 'label': 'Shift + Rightwards Arrow'}},
 			captions: true,
 			center: true,
 			classes: [/*'slideshow', 'first', 'prev', 'play', 'pause', 'next', 'last', 'images', 'captions', 'controller', 'thumbnails', 'hidden', 'visible', 'inactive', 'active', 'loader'*/],
@@ -329,14 +329,16 @@ Dependencies:
 		load: function(data){
 			this.firstrun = true;
 			this.showed = {'array': [], 'i': 0};
+			var now = Date.now();
 			if (typeOf(data) == 'array'){
-				this.options.captions = false;			
-				data = new Array(data.length).associate(data.map(function(image, i){ return image + '?' + i })); 
+				this.options.captions = false;	
+				data = new Array(data.length).associate(data.map(function(image, i){ return image + '#' + now + i })); 
 			}
 			this.data = {'images': [], 'captions': [], 'hrefs': [], 'thumbnails': [], 'targets': [], 'titles': []};
 			for (var image in data){
 				var obj = data[image] || {},
-					image = this.options.hu + image,
+					hash = new RegExp('#' + now + '\\d+$'),
+					image = this.options.hu + image.replace(hash, ''),
 					caption = obj.caption ? obj.caption.trim() 
 						: '',
 					href = obj.href ? obj.href.trim() 
@@ -358,7 +360,8 @@ Dependencies:
 				this.slide = this._slide = Number.random(0, this.data.images.length - 1);
 
 			// only run when data is loaded dynamically into an existing slideshow instance
-
+			// TODO
+			
 			if (this.options.thumbnails && this.el.retrieve('thumbnails'))
 				this._thumbnails();
 			if (this.el.retrieve('images')){
@@ -403,22 +406,26 @@ Dependencies:
 	*/
 
 		_preload: function(fast){
-			var src = this.data.images[this._slide].replace(/([^?]+).*/, '$1'),
-				cached = loaded = !!this.cache[src];
+			var src = this.data.images[this._slide],
+				cached = loaded = !!this.cache[src],
+				now = Date.now();
 			if (!cached){
 				if (!this.preloader)
 				 	this.preloader = new Asset.image(src, {
 						'onerror': function(){
-							// do something
+							this.store('error', true);
 						},
 						'onload': function(){
 							this.store('loaded', true);
 						}
 					});
+				if (this.preloader.retrieve('error')){
+					this._loaded(fast);
+					return;
+				}
 				loaded = this.preloader.retrieve('loaded') && this.preloader.get('width');
 			}
-			if (loaded && Date.now() > this.timeToNextTransition && Date.now() > this.timeToTransitionComplete){
-				var src = this.data.images[this._slide].replace(/([^?]+).*/, '$1');
+			if (loaded && now > this.timeToNextTransition && now > this.timeToTransitionComplete){
 				if (this.preloader){
 					this.cache[src] = {
 						'height': this.preloader.get('height'),
@@ -462,8 +469,8 @@ Dependencies:
 				this._loaded(fast);
 			} 
 			else {
-				if (Date.now() > this.timeToNextTransition && this.options.loader)
-					this.loader.fireEvent('show');
+				if (now > this.timeToNextTransition)
+					this.options.loader && this.loader.fireEvent('show');
 				this.timer = this._preload.delay(50, this, fast); 
 			}
 		},
@@ -617,8 +624,8 @@ Dependencies:
 				options = {};
 			this.setOptions(options);
 			var el = slideshow.el.getElement(slideshow.classes.get('captions')),
-				caption = el ? el.dispose().empty()
-					: new Element('div', {'class': slideshow.classes.get('captions', true)});
+				caption = el ? el.empty()
+					: new Element('div', {'class': slideshow.classes.get('captions', true)}).inject(slideshow.el);
 			slideshow.caption = caption;
 			caption
 				.set({
@@ -632,7 +639,6 @@ Dependencies:
 		    if (!caption.get('id'))
 		    	caption.set('id', 'Slideshow-' + Date.now());
 		    slideshow.el.retrieve('images').set('aria-labelledby', caption.get('id'));
-			caption.inject(slideshow.el);
 		},
 
 		update: function(fast){
@@ -697,8 +703,8 @@ Dependencies:
 				options = {};
 			this.setOptions(options);
 			var el = slideshow.el.getElement(slideshow.classes.get('controller')),
-				controller = el ? el.dispose().empty()
-					: new Element('div', {'class': slideshow.classes.get('controller', true)});
+				controller = el ? el.empty()
+					: new Element('div', {'class': slideshow.classes.get('controller', true)}).inject(slideshow.el);
 			slideshow.controller = controller;
 			controller.set({
 				'aria-hidden': false, 
@@ -737,7 +743,7 @@ Dependencies:
 				.push('keydown', this.keydown.bind(slideshow))
 				.push('keyup',	this.keyup.bind(slideshow))
 				.push('mousemove',	this.mousemove.bind(slideshow));
-			controller.inject(slideshow.el).fireEvent('hide');
+			controller.fireEvent('hide');
 		},
 
 		hide: function(hidden){
@@ -895,7 +901,7 @@ Dependencies:
 			this.setOptions(options);
 			var el = slideshow.el.getElement(slideshow.classes.get('thumbnails')),
 				thumbnails = el ? el.empty() 
-					: new Element('div', {'class': slideshow.classes.get('thumbnails', true)});
+					: new Element('div', {'class': slideshow.classes.get('thumbnails', true)}).inject(slideshow.el);
 			slideshow.thumbnails = thumbnails;
 			thumbnails.set({
 				'events': {
@@ -937,7 +943,6 @@ Dependencies:
 			var props = (this.options.scroll == 'y' ? 'top bottom height y width' : 'left right width x height').split(' ');
 			thumbnails.store('props', props).store('delay', 1000 / this.options.fps);
 			slideshow.events.push('mousemove', this.mousemove.bind(thumbnails));
-			thumbnails.inject(slideshow.el);
 		},
 
 		click: function(i){
@@ -946,8 +951,8 @@ Dependencies:
 		},
 
 		mousemove: function(e){
-			var coords = this.getCoordinates();
-			if (e.page.x > coords.left && e.page.x < coords.right && e.page.y > coords.top && e.page.y < coords.bottom){
+			var thumbnailsDimensions = this.getCoordinates();
+			if (e.page.x > thumbnailsDimensions.left && e.page.x < thumbnailsDimensions.right && e.page.y > thumbnailsDimensions.top && e.page.y < thumbnailsDimensions.bottom){
 				this.store('page', e.page);			
 				if (!this.retrieve('mouseover')){
 					this
@@ -965,68 +970,78 @@ Dependencies:
 
 		onload: function(i){
 			var thumbnails = this.thumbnails,
-				a = thumbnails.getElements('a')[i];
+				uid = thumbnails.retrieve('uid'),
+				props = thumbnails.retrieve('props'), 
+				nearSide = props[0], farSide = props[1], length = props[2], width = props[4],
+				li = document.id(uid + i),
+				a = li.firstChild,
+				options = this.options.thumbnails,
+				thumbnailsSameSized = options.columns || options.rows || options.position,
+				thumbnailsDimensions = thumbnails.getCoordinates(),
+				thumbnailsItemDimensions = li.getCoordinates(),
+				margins = li.getStyle('margin-' + nearSide).toInt() + li.getStyle('margin-' + farSide).toInt();
+			thumbnailsItemDimensions[length] += margins;
+			thumbnailsItemDimensions[farSide] += margins;
 			if (a){
 				(function(a){
 					var visible = i == this.slide ? 'active' 
 						: 'inactive';					
 					a.store('loaded', true).get('morph').set(this.classes.get('thumbnails', 'hidden')).start(this.classes.get('thumbnails', visible));	
-				}).delay(Math.max(1000 / this.data.thumbnails.length, 100), this, a);
-			}					
-			if (thumbnails.retrieve('limit'))
-				return;
-			var props = thumbnails.retrieve('props'), 
-				options = this.options.thumbnails,
-				pos = props[1], 
-				length = props[2], 
-				width = props[4],
-				li = thumbnails.getElement('li:nth-child(' + (i + 1) + ')').getCoordinates();
-			if (options.columns || options.rows){
-				thumbnails.setStyles({'height': this.height, 'width': this.width});
-				if (options.columns.toInt())
-					thumbnails.setStyle('width', li.width * options.columns.toInt());
-				if (options.rows.toInt())
-					thumbnails.setStyle('height', li.height * options.rows.toInt());
+				}).delay(Math.max(1000 / this.data.thumbnails.length, 100) * i, this, a);
 			}
-			var div = thumbnails.getCoordinates();
-			if (options.position){
-				if (options.position.test(/bottom|top/))
-					thumbnails.setStyles({'bottom': 'auto', 'top': 'auto'}).setStyle(options.position, -div.height);
-				if (options.position.test(/left|right/))
-					thumbnails.setStyles({'left': 'auto', 'right': 'auto'}).setStyle(options.position, -div.width);
-			}
-			var units = Math.floor(div[width] / li[width]),
-				x = Math.ceil(this.data.images.length / units),
-				r = this.data.images.length % units,
-				len = x * li[length],
-				ul = thumbnails.getElement('ul').setStyle(length, len);
-			ul.getElements('li').setStyles({'height': li.height, 'width': li.width});
-			thumbnails.store('limit', div[length] - len);
+			if (thumbnailsSameSized){
+				if (thumbnails.retrieve('limit'))
+					return;
+				if (options.columns || options.rows){
+					thumbnails.setStyles({'height': this.height, 'width': this.width});
+					if (options.columns)
+						thumbnails.setStyle('width', thumbnailsItemDimensions.width * options.columns.toInt());
+					if (options.rows)
+						thumbnails.setStyle('height', thumbnailsItemDimensions.height * options.rows.toInt());
+				}
+				if (options.position){
+					if (options.position.test(/bottom|top/))
+						thumbnails.setStyles({'bottom': 'auto', 'top': 'auto'}).setStyle(options.position, -thumbnailsDimensions.height);
+					if (options.position.test(/left|right/))
+						thumbnails.setStyles({'left': 'auto', 'right': 'auto'}).setStyle(options.position, -thumbnailsDimensions.width);
+				}
+				var numberOfThumbnailsPerSet = Math.floor(thumbnailsDimensions[width] / thumbnailsItemDimensions[width]),
+					numberOfSets = Math.ceil(this.data.images.length / numberOfThumbnailsPerSet),
+					lengthOfSet = numberOfSets * thumbnailsItemDimensions[length];
+				thumbnails.getElement('ul').setStyle(length, lengthOfSet).getElements('li')
+					.setStyles({'height': thumbnailsItemDimensions.height, 'width': thumbnailsItemDimensions.width});
+				thumbnails.store('limit', thumbnailsDimensions[length] - lengthOfSet);
+			}	
+			else {
+				var limit = thumbnails.retrieve('limit', 0);
+				thumbnails.store('limit', Math.min(limit, thumbnailsDimensions[length] - thumbnailsItemDimensions[nearSide] - margins));
+			}				
 		},
 
 		scroll: function(n, fast){
-			var div = this.getCoordinates(),
-				ul = this.getElement('ul').getPosition(),
+			var thumbnailsDimensions = this.getCoordinates(),
+				thumbnailsListPosition = this.getElement('ul').getPosition(this),
 				props = this.retrieve('props'),
-				axis = props[3], delta, pos = props[0], size = props[2], value,			
-				tween = this.getElement('ul').set('tween', {'property': pos}).get('tween');	
+				nearSide = props[0], length = props[2], axis = props[3],		
+				tween = this.getElement('ul').set('tween', {'property': nearSide}).get('tween'),
+				delta, value;
 			if (n != undefined){
 				var uid = this.retrieve('uid'),
-					li = document.id(uid + n).getCoordinates();
-				delta = div[pos] + (div[size] / 2) - (li[size] / 2) - li[pos];
-				value = (ul[axis] - div[pos] + delta).limit(this.retrieve('limit'), 0);
+					thumbnailsItemDimensions = document.id(uid + n).getCoordinates();
+				delta = thumbnailsDimensions[nearSide] + (thumbnailsDimensions[length] / 2) - (thumbnailsItemDimensions[length] / 2) - thumbnailsItemDimensions[nearSide];
+				value = (thumbnailsListPosition[axis] + delta).limit(this.retrieve('limit'), 0);
 				tween[fast ? 'set' : 'start'](value);
 			}
 			else{
-				var area = div[props[2]] / 3, 
+				var area = thumbnailsDimensions[length] / 3, 
 					page = this.retrieve('page'), 
 					velocity = -(this.retrieve('delay') * 0.01);			
-				if (page[axis] < (div[pos] + area))
-					delta = (page[axis] - div[pos] - area) * velocity;
-				else if (page[axis] > (div[pos] + div[size] - area))
-					delta = (page[axis] - div[pos] - div[size] + area) * velocity;			
+				if (page[axis] < (thumbnailsDimensions[nearSide] + area))
+					delta = (page[axis] - thumbnailsDimensions[nearSide] - area) * velocity;
+				else if (page[axis] > (thumbnailsDimensions[nearSide] + thumbnailsDimensions[length] - area))
+					delta = (page[axis] - thumbnailsDimensions[nearSide] - thumbnailsDimensions[length] + area) * velocity;			
 				if (delta){			
-					value = (ul[axis] - div[pos] + delta).limit(this.retrieve('limit'), 0);
+					value = (thumbnailsListPosition[axis] + delta).limit(this.retrieve('limit'), 0);
 					tween.set(value);
 				}
 			}				
