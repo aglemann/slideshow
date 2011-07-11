@@ -19,12 +19,12 @@
 		window.addEvent('domready', function(){
 			var data = ['1.jpg', '2.jpg', '3.jpg', '4.jpg', '1.jpg', '2.jpg', '3.jpg', '4.jpg', '1.jpg', '2.jpg', '3.jpg', '4.jpg'];
 
-			window.show = new Slideshow('overlap', data, { captions: { delay: 1000 }, delay: 3000, fast: WhenPaused, height: 300, hu: 'images/', width: 400, replace: [/(\.[^\.]+)$/, 't-ss$1'], thumbnails: {position: 'right', columns: 1, scroll: 'y'} });
-			// new Slideshow('noOverlap', data, { height: 300, hu: 'images/', overlap: false, resize: 'fit', width: 400 });
-			// new Slideshow.Flash('flash', data, { color: ['tomato', 'palegreen', 'orangered', 'aquamarine'], height: 300, hu: 'images/', width: 400 });
-			// new Slideshow.Fold('fold', data, { height: 300, hu: 'images/', width: 400 });
-			// new Slideshow.KenBurns('kenburns', data, { duration: 1500, height: 300, hu: 'images/', width: 400 });
-			// new Slideshow.Push('push', data, { height: 300, hu: 'images/', transition: 'back:in:out', width: 400 });
+			window.show = new Slideshow('overlap', data, { captions: { delay: 1000 }, delay: 3000, fast: WhenPaused, height: 300, hu: 'images/', width: 400 });
+			new Slideshow('noOverlap', data, { height: 300, hu: 'images/', overlap: false, resize: 'fit', width: 400 });
+			new Slideshow.Flash('flash', data, { color: ['tomato', 'palegreen', 'orangered', 'aquamarine'], height: 300, hu: 'images/', width: 400 });
+			new Slideshow.Fold('fold', data, { height: 300, hu: 'images/', width: 400 });
+			new Slideshow.KenBurns('kenburns', data, { duration: 1500, height: 300, hu: 'images/', width: 400 });
+			new Slideshow.Push('push', data, { height: 300, hu: 'images/', transition: 'back:in:out', width: 400 });
 		});
 	</script>
 </head>
@@ -33,7 +33,7 @@
 		<img src="images/1.jpg" alt="1">
 	</div>
 	
-	<!-- <div id="noOverlap" class="slideshow">
+	<div id="noOverlap" class="slideshow">
 		<img src="images/1.jpg" alt="1">
 	</div>
 
@@ -51,6 +51,6 @@
 	
 	<div id="push" class="slideshow">
 		<img src="images/1.jpg" alt="1">
-	</div>	 -->
+	</div>	
 </body>
 </html>
