@@ -199,7 +199,7 @@ Notes:
 */
 
 .slideshow-thumbnails {
-	bottom: -55px; height: 55px; left: 0; position: absolute; width: 100%;
+	bottom: -55px; height: 50px; left: 0; position: absolute; width: 100%;
 }
 .slideshow-thumbnails a {
 	display: block; float: left; outline: none; margin: 0; padding: 5px;
@@ -213,6 +213,9 @@ Notes:
 .slideshow-thumbnails li {
 	float: left; list-style: none; margin: 0 5px 0 0; padding: 0;
 }
+.slideshow-thumbnails li:last-child {
+	margin: 0;
+}
 .slideshow-thumbnails ul {
 	margin: 0; padding: 0;
 }
@@ -225,3 +228,19 @@ Notes:
 .slideshow-thumbnails-active {
 	background-color: #9FF; opacity: 1;
 }
+
+/**
+Notes:
+	Uncomment for vertical thumbnails.
+	Assumes all thumbnails are the same width (may be different heights).
+
+.slideshow-thumbnails {
+	bottom: auto; height: 100%; left: auto; position: absolute; right: -65px; top: 0; width: 60px; 
+}
+.slideshow-thumbnails li {
+	margin: 0 0 5px 0;
+}
+.slideshow-thumbnails ul {
+	height: 100000px; width: auto;
+}
+*/

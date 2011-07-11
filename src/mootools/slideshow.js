@@ -886,12 +886,8 @@ Dependencies:
 			duration: 500,
 			transition: 'sine:in:out',
 			unit: false, */
-			columns: null,
 			fps: 50,
-			link: 'cancel',
-			position: null,
-			rows: null,
-			scroll: null
+			link: 'cancel'
 		},
 
 		initialize: function(slideshow){
@@ -938,9 +934,7 @@ Dependencies:
 				}).inject(a);
 			}, this);
 			var coords = thumbnails.getCoordinates();
-			this.options.scroll = this.options.scroll || (coords.height > coords.width) ? 'y' 
-				: 'x';
-			var props = (this.options.scroll == 'y' ? 'top bottom height y width' : 'left right width x height').split(' ');
+			var props = (coords.height > coords.width ? 'top bottom height y width' : 'left right width x height').split(' ');
 			thumbnails.store('props', props).store('delay', 1000 / this.options.fps);
 			slideshow.events.push('mousemove', this.mousemove.bind(thumbnails));
 		},
@@ -970,52 +964,24 @@ Dependencies:
 
 		onload: function(i){
 			var thumbnails = this.thumbnails,
+				limit = thumbnails.retrieve('limit', 0),
 				uid = thumbnails.retrieve('uid'),
 				props = thumbnails.retrieve('props'), 
 				nearSide = props[0], farSide = props[1], length = props[2], width = props[4],
 				li = document.id(uid + i),
-				a = li.firstChild,
-				options = this.options.thumbnails,
-				thumbnailsSameSized = options.columns || options.rows || options.position,
+				ul = li.getParent(),
+				a = li.getElement('a'),
 				thumbnailsDimensions = thumbnails.getCoordinates(),
-				thumbnailsItemDimensions = li.getCoordinates(),
+				thumbnailsItemDimensions = li.getCoordinates(ul),
 				margins = li.getStyle('margin-' + nearSide).toInt() + li.getStyle('margin-' + farSide).toInt();
 			thumbnailsItemDimensions[length] += margins;
 			thumbnailsItemDimensions[farSide] += margins;
-			if (a){
-				(function(a){
-					var visible = i == this.slide ? 'active' 
-						: 'inactive';					
-					a.store('loaded', true).get('morph').set(this.classes.get('thumbnails', 'hidden')).start(this.classes.get('thumbnails', visible));	
-				}).delay(Math.max(1000 / this.data.thumbnails.length, 100) * i, this, a);
-			}
-			if (thumbnailsSameSized){
-				if (thumbnails.retrieve('limit'))
-					return;
-				if (options.columns || options.rows){
-					thumbnails.setStyles({'height': this.height, 'width': this.width});
-					if (options.columns)
-						thumbnails.setStyle('width', thumbnailsItemDimensions.width * options.columns.toInt());
-					if (options.rows)
-						thumbnails.setStyle('height', thumbnailsItemDimensions.height * options.rows.toInt());
-				}
-				if (options.position){
-					if (options.position.test(/bottom|top/))
-						thumbnails.setStyles({'bottom': 'auto', 'top': 'auto'}).setStyle(options.position, -thumbnailsDimensions.height);
-					if (options.position.test(/left|right/))
-						thumbnails.setStyles({'left': 'auto', 'right': 'auto'}).setStyle(options.position, -thumbnailsDimensions.width);
-				}
-				var numberOfThumbnailsPerSet = Math.floor(thumbnailsDimensions[width] / thumbnailsItemDimensions[width]),
-					numberOfSets = Math.ceil(this.data.images.length / numberOfThumbnailsPerSet),
-					lengthOfSet = numberOfSets * thumbnailsItemDimensions[length];
-				thumbnails.getElement('ul').setStyle(length, lengthOfSet).getElements('li')
-					.setStyles({'height': thumbnailsItemDimensions.height, 'width': thumbnailsItemDimensions.width});
-				thumbnails.store('limit', thumbnailsDimensions[length] - lengthOfSet);
-			}	
-			else {
-				var limit = thumbnails.retrieve('limit', 0);
-				thumbnails.store('limit', Math.min(limit, thumbnailsDimensions[length] - thumbnailsItemDimensions[nearSide] - margins));
-			}				
+			thumbnails.store('limit', Math.min(limit, thumbnailsDimensions[length] - thumbnailsItemDimensions[farSide]));
+			(function(a){
+				var visible = i == this.slide ? 'active' 
+					: 'inactive';					
+				a.store('loaded', true).get('morph').set(this.classes.get('thumbnails', 'hidden')).start(this.classes.get('thumbnails', visible));	
+			}).delay(Math.max(1000 / this.data.thumbnails.length, 100) * i, this, a);
 		},
 
 		scroll: function(n, fast){
