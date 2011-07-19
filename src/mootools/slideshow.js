@@ -263,11 +263,10 @@ Dependencies:
 
 		pause: function(p){
 			if (p != undefined)
-				this.paused = p ? false 
-					: true;
+				this.paused = !p;
 			if (this.paused){ // play
 				this.paused = false;
-				this.timeToTransitionComplete = Date.now() + this.timeToTransitionComplete;		
+				this.timeToTransitionComplete += Date.now();		
 				this.timer = this._preload.delay(50, this);
 				[this.a, this.b].each(function(img){
 					['morph', 'tween'].each(function(p){
@@ -278,7 +277,7 @@ Dependencies:
 			} 
 			else { // pause
 				this.paused = true;
-				this.timeToTransitionComplete = this.timeToTransitionComplete - Date.now();
+				this.timeToTransitionComplete -= Date.now();
 				clearTimeout(this.timer);
 				[this.a, this.b].each(function(img){
 					['morph', 'tween'].each(function(p){
@@ -522,7 +521,7 @@ Dependencies:
 			this.counter++;
 			this.timeToNextTransition = Date.now() + this.options.duration + this.options.delay;
 			this.direction = 'left';			
-			this.timeToTransitionComplete = fast ? 0 
+			this.timeToTransitionComplete = fast || this.paused ? 0 
 				: Date.now() + this.options.duration;
 			if (this._slide == (this.data.images.length - 1) && !this.options.loop && !this.options.random)
 				this.stopped = this.end = true;
