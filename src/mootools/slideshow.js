@@ -255,28 +255,21 @@ Dependencies:
 		Toggles play / pause state of the show.
 
 	Arguments:
-		p - (undefined, 1 or 0) Call pause with no arguments to toggle the pause state. Call pause(1) to force pause, or pause(0) to force play.
+		p - (undefined, 1 (true) or 0 (false)) Call pause with no arguments to toggle the pause state. Call pause(1) to force pause, or pause(0) to force play.
 
 	Syntax:
 		myShow.pause(p);	
 	*/
 
 		pause: function(p){
-			if (p != undefined)
-				this.paused = !p;
-			if (this.paused){ // play
-				this.paused = false;
-				this.timeToTransitionComplete += Date.now();		
-				this.timer = this._preload.delay(50, this);
-				[this.a, this.b].each(function(img){
-					['morph', 'tween'].each(function(p){
-						if (this.retrieve(p)) this.get(p).resume();
-					}, img);
-				});
-				this.controller && this.el.retrieve('pause').getParent().removeClass(this.classes.play);
-			} 
-			else { // pause
-				this.paused = true;
+			if (p == undefined) {
+				this.paused = !this.paused; // toggle pause state
+			} else if (p != this.paused) {
+				this.paused = p; // set pause state
+			} else {
+				return; // just return if pause state is the same
+			}
+			if (this.paused){ // pause
 				this.timeToTransitionComplete -= Date.now();
 				clearTimeout(this.timer);
 				[this.a, this.b].each(function(img){
@@ -285,6 +278,15 @@ Dependencies:
 					}, img);
 				});
 				this.controller && this.el.retrieve('pause').getParent().addClass(this.classes.play);
+			} else { // play
+				this.timeToTransitionComplete += Date.now();
+				this.timer = this._preload.delay(50, this);
+				[this.a, this.b].each(function(img){
+					['morph', 'tween'].each(function(p){
+						if (this.retrieve(p)) this.get(p).resume();
+					}, img);
+				});
+				this.controller && this.el.retrieve('pause').getParent().removeClass(this.classes.play);
 			}
 		},
 
